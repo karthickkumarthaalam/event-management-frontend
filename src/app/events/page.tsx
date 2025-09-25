@@ -2,9 +2,10 @@
 
 import Dashboard from "@/components/events/dashboard";
 import EventManagement from "@/components/events/eventManagement";
+import PromoCode from "@/components/events/promocode";
 import NavbarLayout from "@/components/layouts/NavbarLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { LayoutDashboard, PartyPopper } from "lucide-react";
+import { LayoutDashboard, PartyPopper, Gift } from "lucide-react";
 import { useState } from "react";
 
 export default function EventManagementPage() {
@@ -12,7 +13,8 @@ export default function EventManagementPage() {
 
     const tabs = [
         { name: "Dashboard", value: "dashboard", icon: LayoutDashboard },
-        { name: "Event", value: "event", icon: PartyPopper }
+        { name: "Event", value: "event", icon: PartyPopper },
+        { name: "Promo Code", value: "promo_code", icon: Gift }
     ];
 
 
@@ -22,7 +24,7 @@ export default function EventManagementPage() {
                 <div className="flex flex-col md:flex-row min-h-screen bg-transparent">
                     {/* Sidebar */}
                     <aside className="hidden xl:flex flex-col w-60 bg-white/70 backdrop-blur-md border-r border-gray-200 shadow-xl rounded-3xl p-6">
-                        <h2 className="text-xl font-bold mb-10 bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent tracking-tight">
+                        <h2 className="text-xl font-bold mb-10 bg-gradient-to-r from-indigo-600 to-purple-900 bg-clip-text text-transparent tracking-tight">
                             Event Manager
                         </h2>
                         <nav className="flex flex-col gap-2">
@@ -80,6 +82,7 @@ export default function EventManagementPage() {
                     <main className="flex-1  md:p-8">
                         {activeTab === "dashboard" && <Dashboard />}
                         {activeTab === "event" && <EventManagement />}
+                        {activeTab === "promo_code" && <PromoCode />}
                     </main>
                 </div>
             </NavbarLayout>

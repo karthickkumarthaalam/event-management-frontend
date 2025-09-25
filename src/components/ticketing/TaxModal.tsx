@@ -140,37 +140,6 @@ export default function TaxModal({ open, onClose, tax, eventId, onSaved }: TaxMo
                             error={fieldErrors.name}
                         />
 
-                        <div className="flex flex-col gap-2 ">
-                            <Label className="">Tax Mode</Label>
-                            <Select value={form.mode} onValueChange={(v) => setForm({ ...form, mode: v as "inclusive" | "exclusive" })} >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="select Tax Mode" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="inclusive">Inclusive</SelectItem>
-                                    <SelectItem value="exclusive">Exclusive</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            {fieldErrors.mode && <p className="text-red-500 text-xs">{fieldErrors.mode}</p>}
-                        </div>
-
-                        <div className="flex flex-col gap-2">
-                            <Label>Tax Type</Label>
-                            <Select
-                                value={form.type}
-                                onValueChange={(v) => setForm({ ...form, type: v as "percentage" | "fixed" })}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select Tax Type" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="fixed">Fixed</SelectItem>
-                                    <SelectItem value="percentage">Percentage</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            {fieldErrors.type && <p className="text-red-500 text-xs">{fieldErrors.type}</p>}
-                        </div>
-
                         <InputField
                             label="Value"
                             type="number"
@@ -178,6 +147,40 @@ export default function TaxModal({ open, onClose, tax, eventId, onSaved }: TaxMo
                             onChange={(e) => setForm({ ...form, value: +e.target.value })}
                             error={fieldErrors.value}
                         />
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <div className="flex flex-col gap-2 ">
+                                <Label className="">Tax Mode</Label>
+                                <Select value={form.mode} onValueChange={(v) => setForm({ ...form, mode: v as "inclusive" | "exclusive" })} >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="select Tax Mode" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="inclusive">Inclusive</SelectItem>
+                                        <SelectItem value="exclusive">Exclusive</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                {fieldErrors.mode && <p className="text-red-500 text-xs">{fieldErrors.mode}</p>}
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <Label>Tax Type</Label>
+                                <Select
+                                    value={form.type}
+                                    onValueChange={(v) => setForm({ ...form, type: v as "percentage" | "fixed" })}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select Tax Type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="fixed">Fixed</SelectItem>
+                                        <SelectItem value="percentage">Percentage</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                {fieldErrors.type && <p className="text-red-500 text-xs">{fieldErrors.type}</p>}
+                            </div>
+                        </div>
+
                     </Section>
 
                     {/* Applicable On */}

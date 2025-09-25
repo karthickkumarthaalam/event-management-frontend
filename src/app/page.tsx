@@ -35,7 +35,7 @@ export default function Home() {
           {/* Logo (always left) */}
           <Link
             href="/"
-            className="text-3xl font-bold tracking-normal bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent"
+            className="text-3xl font-bold tracking-normal bg-gradient-to-r from-indigo-600 to-purple-900 bg-clip-text text-transparent"
           >
             Thaalam
           </Link>
@@ -63,9 +63,9 @@ export default function Home() {
       <header className="max-w-7xl mx-auto px-6 pt-32 lg:pt-40 flex flex-col lg:flex-row items-center gap-16">
         {/* Left Content */}
         <div className="lg:w-1/2 text-center lg:text-left space-y-6">
-          <h1 className="text-4xl sm:text-5xl font-extrabold leading-normal tracking-tight text-gray-900">
-            Plan <span className="bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent">Smarter</span>,<br />
-            Manage <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-800 to-blue-600 ">Better</span>
+          <h1 className="text-4xl sm:text-5xl font-extrabold leading-normal tracking-tight text-indigo-600">
+            Plan <span className="bg-gradient-to-r from-indigo-600 to-purple-900 bg-clip-text text-transparent">Smarter</span>,<br />
+            Manage <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-900 ">Better</span>
           </h1>
           <p className="text-lg text-gray-700 max-w-xl mx-auto lg:mx-0">
             Streamline your events with Thaalam — all-in-one platform for ticketing, crew management, budgeting, and expense tracking.

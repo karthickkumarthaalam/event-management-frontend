@@ -10,7 +10,7 @@ import Tickets from "@/components/ticketing/Tickets";
 import { useTicketing } from "@/contexts/TicketingContextT";
 import EventSelectionModal from "@/components/ticketing/EventSelectionModal";
 import Reports from "@/components/ticketing/reports/Reports";
-import Purchase from "@/components/ticketing/purchasing/Purchase";
+import Booking from "@/components/ticketing/booking/Booking";
 
 function TicketingContent() {
     const [activeTab, setActiveTab] = useState<string>("dashboard");
@@ -20,7 +20,7 @@ function TicketingContent() {
         { name: "Dashboard", value: "dashboard", icon: LayoutDashboard },
         { name: "Tickets", value: "tickets", icon: Ticket },
         { name: "Reports", value: "reports", icon: ChartCandlestick },
-        { name: "Purchase", value: "purhcase", icon: ShoppingCart }
+        { name: "Booking", value: "booking", icon: ShoppingCart }
     ];
 
     return (
@@ -30,7 +30,7 @@ function TicketingContent() {
                 {selectedEvent && (
                     <div className=" flex flex-col md:flex-row min-h-screen bg-transparent ">
                         <aside className="hidden xl:flex flex-col w-60 bg-white/70 backdrop-blur-md border-r border-gray-200 shadow-xl rounded-3xl p-6">
-                            <h2 className=" text-xl font-bold mb-10 bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent tracking-tight">
+                            <h2 className=" text-xl font-bold mb-10 bg-gradient-to-r from-indigo-600 to-purple-900 bg-clip-text text-transparent tracking-tight">
                                 Ticketing Manager
                             </h2>
                             <nav className="flex flex-col gap-2">
@@ -83,7 +83,7 @@ function TicketingContent() {
                             {activeTab === "dashboard" && <Dashboard />}
                             {activeTab === "tickets" && <Tickets />}
                             {activeTab === "reports" && <Reports />}
-                            {activeTab === "purchase" && <Purchase />}
+                            {activeTab === "booking" && <Booking />}
                         </main>
 
                     </div>

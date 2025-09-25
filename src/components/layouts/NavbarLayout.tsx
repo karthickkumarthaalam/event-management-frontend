@@ -26,7 +26,7 @@ export default function NavbarLayout({ children }: NavbarLayoutProps) {
         <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-100 to-green-100 text-gray-900">
 
             {/* Header */}
-            <header className="sticky top-0 z-50 bg-gray-800 border-b border-gray-800 shadow-md">
+            <header className="sticky top-0 z-50 bg-gradient-to-r from-slate-700 to-gray-900 border-b border-gray-800 shadow-md">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
 
                     {/* Logo */}

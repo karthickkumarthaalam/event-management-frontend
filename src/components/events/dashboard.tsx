@@ -14,7 +14,7 @@ import {
     Legend,
 } from "chart.js";
 import { Button } from "@/components/ui/button";
-import { Plus, Calendar, TrendingUp, Users, Clock, MapPin, Eye, MoreVertical, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Calendar, TrendingUp, Users, Clock, MapPin, Eye, MoreVertical, ChevronLeft, ChevronRight, Dot, View } from "lucide-react";
 import EventModal from "./EventModal";
 import ViewEventModal from "./viewModal";
 
@@ -210,7 +210,7 @@ export default function Dashboard() {
                     {/* Header */}
                     <div className="flex  md:flex-row justify-between items-start md:items-center gap-4">
                         <div>
-                            <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent mb-2">
+                            <h1 className="text-2xl  font-bold bg-gradient-to-r from-indigo-600 to-purple-900 bg-clip-text text-transparent mb-2">
                                 Dashboard
                             </h1>
                         </div>
@@ -366,7 +366,7 @@ export default function Dashboard() {
                                             <th className="px-8 py-4 text-left text-sm font-semibold text-slate-700">Status</th>
                                             <th className="px-8 py-4 text-left text-sm font-semibold text-slate-700">Start Date</th>
                                             <th className="px-8 py-4 text-left text-sm font-semibold text-slate-700">End Date</th>
-                                            <th className="px-8 py-4 text-center text-sm font-semibold text-slate-700">Actions</th>
+                                            <th className="px-8 py-4 text-center text-sm font-semibold text-slate-700 hidden lg:block">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100">
@@ -374,7 +374,7 @@ export default function Dashboard() {
                                             .filter(e => new Date(e.start_date) > new Date())
                                             .slice(0, 5)
                                             .map(event => (
-                                                <tr key={event.id} className="hover:bg-slate-50 transition-all duration-200">
+                                                <tr key={event.id} className="hover:bg-slate-50 transition-all duration-200" >
                                                     <td className="px-8 py-6">
                                                         <div className="flex items-center gap-3">
                                                             <div className="w-10 h-10 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-xl flex items-center justify-center">
@@ -414,11 +414,11 @@ export default function Dashboard() {
                                                             }) : "—"}
                                                         </p>
                                                     </td>
-                                                    <td className="px-8 py-6 text-center">
+                                                    <td className="px-8 py-6 text-center hidden lg:block">
                                                         <div className="flex items-center justify-center gap-2">
                                                             <button className="p-2 hover:bg-slate-100 rounded-lg transition-colors duration-200"
                                                                 onClick={() => setViewEvent(event)} >
-                                                                <Eye className="h-4 w-4 text-slate-600" />
+                                                                <View className="h-4 w-4 text-slate-600" />
                                                             </button>
 
                                                         </div>

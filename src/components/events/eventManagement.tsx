@@ -87,7 +87,7 @@ export default function EventManagement() {
                 {/* Header */}
                 <div className="flex flex-row justify-between items-start md:items-center gap-6">
                     <div>
-                        <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent mb-2">
+                        <h1 className="text-2xl  font-bold bg-gradient-to-r from-indigo-600 to-purple-900 bg-clip-text text-transparent mb-2">
                             Event Management
                         </h1>
                     </div>
