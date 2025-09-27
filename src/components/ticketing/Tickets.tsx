@@ -202,7 +202,7 @@ export default function TicketManagementPage() {
 
     return (
         <>
-            <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white rounded-2xl p-2 md:p-4 shadow-xl flex gap-4 items-center ">
+            <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white rounded-2xl p-2 md:p-4 shadow-xl flex gap-4 items-center mb-6 lg:mb-0">
                 {
                     selectedEvent?.logo ?
                         (<img src={`${process.env.NEXT_PUBLIC_BASE_API}${selectedEvent?.logo}`} alt={selectedEvent?.name} className=" w-12 h-12 md:w-24 md:h-24" />) :
@@ -224,7 +224,7 @@ export default function TicketManagementPage() {
                     </div>
                 </div>
             </div>
-            <div className="min-h-screen md:p-6 lg:p-8">
+            <div className="min-h-screen  lg:p-8">
                 <div className="space-y-6">
 
                     {/* Header */}

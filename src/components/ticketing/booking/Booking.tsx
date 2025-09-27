@@ -820,7 +820,7 @@ export default function Booking() {
                                                         {ticket.currency} {ticket.basePrice.toFixed(2)}
                                                     </div>
                                                     <div className="col-span-3 text-right font-semibold text-gray-900">
-                                                        {ticket.currency} {ticket.grandTotal.toFixed(2)}
+                                                        {ticket.currency} {ticket.basePriceTotal.toFixed(2)}
                                                     </div>
                                                 </div>
 
@@ -836,7 +836,7 @@ export default function Booking() {
                                                             )}
                                                         </div>
                                                         <span className="font-semibold text-gray-900">
-                                                            {ticket.currency} {ticket.grandTotal.toFixed(2)}
+                                                            {ticket.currency} {ticket.basePriceTotal.toFixed(2)}
                                                         </span>
                                                     </div>
                                                     <div className="flex justify-between text-sm text-gray-600">
@@ -966,12 +966,12 @@ export default function Booking() {
                                             {isProcessing ? (
                                                 <>
                                                     <Loader className="w-5 h-5 animate-spin" />
-                                                    Processing Payment...
+                                                    Sharing Payment link...
                                                 </>
                                             ) : (
                                                 <>
                                                     <CreditCard className="w-5 h-5" />
-                                                    Proceed to Payment
+                                                    Share Payment Link
                                                 </>
                                             )}
                                         </button>
