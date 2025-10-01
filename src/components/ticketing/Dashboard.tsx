@@ -1,15 +1,9 @@
-import { useEffect, useState } from "react";
-import { fetchEvents } from "@/lib/events";
-import { useTicketing } from "@/contexts/TicketingContextT";
+"use client";
 
 export default function Dashboard() {
-    const { selectedEvent } = useTicketing();
     return (
         <div>
-            <h1 className="text-2xl font-bold">
-                Ticketing for {selectedEvent.name}
-            </h1>
-
+            Ticketing Dashboard
         </div>
     );
 }

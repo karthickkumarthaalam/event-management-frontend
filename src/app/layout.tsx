@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { BannerProvider } from "@/contexts/BannerContext";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -30,7 +31,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${poppins.variable} antialiased`}>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <BannerProvider>
+            {children}
+          </BannerProvider>
+        </AuthProvider>
         <ToastContainer
           position="top-right"
           autoClose={3000}

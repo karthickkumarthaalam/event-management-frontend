@@ -15,7 +15,6 @@ interface Addon {
 }
 
 interface Tax {
-    id: string;
     name: string;
     totalAmount: number;
 }
@@ -26,7 +25,6 @@ interface OrderItem {
     quantity: number;
     basePrice: number;
     grandTotal: number;
-    addonsDetails: Addon[];
     taxDetails: Tax[];
     earlyBirdActive: boolean;
 }
@@ -54,6 +52,7 @@ interface Order {
     id: string;
     items: OrderItem[];
     purchaser: Purchaser;
+    addonsDetails: Addon;
     totalAmount: number;
     discountAmount: number;
     totalBase: number;
@@ -90,8 +89,58 @@ export default function CheckoutPage() {
     const fetchOrder = async () => {
         try {
             const data = await fetchSingleOrder(orderId, true);
-            console.log(data, "showing data");
             // Transform backend order into frontend structure
+
+            if (data.paymentStatus === "paid") {
+                router.push(`/checkout/success?orderId=${orderId}`);
+                return;
+            }
+
+            const groupedItems = Object.values(
+                data.Items.reduce((acc: any, item: any) => {
+                    if (!acc[item.ticketRefId]) {
+                        acc[item.ticketRefId] = {
+                            ticketRefId: item.ticketRefId,
+                            ticketId: item.ticketId,
+                            name: item.ticketClass,
+                            quantity: 0,
+                            grandTotal: 0,
+                            basePrice: parseFloat(item.price),
+                            taxDetails: [] as { name: string; totalAmount: number; }[],
+                            earlyBirdActive: false
+                        };
+                    }
+
+                    acc[item.ticketRefId].quantity += item.quantity;
+
+                    acc[item.ticketRefId].grandTotal += parseFloat(item.totalAmount);
+
+                    item.taxes?.forEach((tax: any) => {
+                        const existingTax = acc[item.ticketRefId].taxDetails.find(
+                            (t: any) => t.name === tax.taxName
+                        );
+                        if (existingTax) {
+                            existingTax.totalAmount += parseFloat(tax.taxAmount);
+                        } else {
+                            acc[item.ticketRefId].taxDetails.push({
+                                name: tax.taxName,
+                                totalAmount: parseFloat(tax.taxAmount)
+                            });
+                        }
+                    });
+
+                    return acc;
+                }, {})
+            );
+
+            const addonsDetails = data.addons?.map((a: any) => ({
+                id: a.id,
+                name: a.addonName,
+                quantity: a.quantity,
+                totalAmount: parseFloat(a.totalAmount)
+            })) || [];
+
+
             const transformedOrder: Order = {
                 id: data.id,
                 purchaser: {
@@ -100,34 +149,21 @@ export default function CheckoutPage() {
                     purchaseMobile: data.purchaseMobile,
                     purchaseBillingAddress: data.purchaseBillingAddress,
                 },
-                items: data.Items.map((item: any) => ({
-                    ticketId: item.ticketId,
-                    name: item.ticketClass,
-                    quantity: item.quantity,
-                    basePrice: parseFloat(item.price),
-                    grandTotal: parseFloat(item.totalAmount),
-                    addonsDetails: item.addons.map((a: any) => ({
-                        id: a.id,
-                        name: a.addonName,
-                        quantity: a.quantity,
-                        totalAmount: parseFloat(a.totalAmount),
-                    })),
-                    taxDetails: item.taxes.map((t: any) => ({
-                        id: t.id,
-                        name: t.taxName,
-                        totalAmount: parseFloat(t.taxAmount),
-                    })),
-                    earlyBirdActive: false,
-                })),
+                items: groupedItems,
+                addonsDetails,
                 totalAmount: parseFloat(data.totalAmount),
                 discountAmount: parseFloat(data.discountedAmount),
-                totalBase: data.Items.reduce((acc: number, t: any) => acc + parseFloat(t.price) * t.quantity, 0),
-                totalAddons: data.Items.reduce(
-                    (acc: number, t: any) => acc + t.addons.reduce((a: number, ad: any) => a + parseFloat(ad.totalAmount), 0),
+                totalBase: groupedItems.reduce(
+                    (acc: number, t: any) => acc + t.basePrice * t.quantity,
                     0
                 ),
-                totalTaxes: data.Items.reduce(
-                    (acc: number, t: any) => acc + t.taxes.reduce((a: number, tx: any) => a + parseFloat(tx.taxAmount), 0),
+                totalAddons: addonsDetails.reduce(
+                    (acc: number, ad: any) => acc + ad.totalAmount,
+                    0
+                ),
+                totalTaxes: groupedItems.reduce(
+                    (acc: number, t: any) =>
+                        acc + t.taxDetails.reduce((a: number, tx: any) => a + tx.totalAmount, 0),
                     0
                 ),
                 currency: data.event?.currency_symbol,
@@ -144,7 +180,6 @@ export default function CheckoutPage() {
                     }
                     : undefined,
             };
-
             setOrder(transformedOrder);
         } catch (err: any) {
             console.error(err);
@@ -199,7 +234,7 @@ export default function CheckoutPage() {
 
     if (!order) return <Loader className="animate-spin w-10 h-10 mx-auto mt-20" />;
 
-    const { items: cartDetails, purchaser, totalAmount, discountAmount, totalBase, totalAddons, totalTaxes, currency } = order;
+    const { items: cartDetails, purchaser, addonsDetails, totalAmount, discountAmount, totalBase, totalAddons, totalTaxes, currency } = order;
 
     return (
         <div className="max-w-6xl mx-auto space-y-6 py-10 px-4">
@@ -285,8 +320,8 @@ export default function CheckoutPage() {
                                     {/* Taxes */}
                                     {ticket.taxDetails.length > 0 && (
                                         <div className="mt-3 pl-2 border-l-2 border-blue-200 dark:text-gray-600">
-                                            {ticket.taxDetails.map((tax) => (
-                                                <div key={tax.id} className="flex justify-between text-sm text-gray-700 dark:text-gray-300 mb-1">
+                                            {ticket.taxDetails.map((tax, idx) => (
+                                                <div key={idx} className="flex justify-between text-sm text-gray-700 dark:text-gray-300 mb-1">
                                                     <span>• {tax.name}</span>
                                                     <span>{currency} {tax.totalAmount.toFixed(2)}</span>
                                                 </div>
@@ -294,25 +329,40 @@ export default function CheckoutPage() {
                                         </div>
                                     )}
 
-                                    {/* Add-ons */}
-                                    {ticket.addonsDetails.length > 0 && (
-                                        <div className="mt-3 pl-2 border-l-2 border-blue-200 dark:text-gray-600">
-                                            {ticket.addonsDetails.map((addon) => (
-                                                <div key={addon.id} className="flex justify-between text-sm text-gray-700 dark:text-gray-300 mb-1">
-                                                    <span>• {addon.name} × {addon.quantity}</span>
-                                                    <span>{currency} {addon.totalAmount.toFixed(2)}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
                                 </div>
                             ))}
+
+                            {addonsDetails.length > 0 && (
+                                <div className="px-4 py-2 md:px-6 md:py-4">
+                                    {addonsDetails.map((addon: Addon) => (
+                                        <div key={addon.id}>
+                                            <div className="hidden md:grid grid-cols-12 gap-4 items-center text-sm">
+                                                <div className="col-span-4 text-left"> {addon.name}</div>
+                                                <div className="col-span-3 text-center text-gray-700 dark:text-gray-300">{addon.quantity}</div>
+                                                <div className="col-span-2 text-right text-gray-700 dark:text-gray-300">{currency} {(addon.totalAmount / addon.quantity).toFixed(2)}</div>
+                                                <div className="col-span-3 text-right font-semibold text-gray-900 dark:text-gray-200">{currency} {addon.totalAmount.toFixed(2)}</div>
+                                            </div>
+                                            <div className="md:hidden space-y-2">
+                                                <div className="flex justify-between items-start text-sm">
+                                                    <span className="font-medium text-gray-900 dark:text-gray-200 block">{addon.name}</span>
+                                                    <span className="font-semibold text-gray-900 dark:text-gray-200">{currency} {(addon.quantity * addon.totalAmount).toFixed(2)}</span>
+                                                </div>
+                                                <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300">
+                                                    <span>Qty: {addon.quantity}</span>
+                                                    <span>Unit: {currency} {addon.totalAmount.toFixed(2)}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                            )}
                         </div>
 
                         {/* Grand Total */}
                         <div className="border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 p-4 md:p-6">
                             {
-                                discountAmount && (
+                                discountAmount > 0 && (
                                     <div className="flex justify-between items-center mb-2">
                                         <span className="text-base font-semibold text-green-500">Discount Amount</span>
                                         <span className="text-base font-semibold text-green-500"> - {currency} {discountAmount.toFixed(2)}</span>

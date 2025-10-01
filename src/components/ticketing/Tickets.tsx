@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import TicketModal from "./TicketModel";
-import { fetchTicketsByEvent, deleteTicket, fetchTaxes, deleteTax } from "@/lib/ticketing";
+import { fetchTicketsByEvent, deleteTicket, fetchTaxes, deleteTax, fetchAddons, deleteAddon } from "@/lib/ticketing";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import debounce from "lodash.debounce";
@@ -24,18 +24,21 @@ import {
     Tags,
     Percent,
     LandmarkIcon,
-    DollarSignIcon
+    DollarSignIcon,
+    GitForkIcon
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { useTicketing } from "@/contexts/TicketingContextT";
 import ConfirmDialog from "../common/confirmDialog";
 import TaxModal from "./TaxModal";
+import { EventBanner } from "./EventBanner";
+import AddonModal from "./AddonModal";
 
 export default function TicketManagementPage() {
     const [tickets, setTickets] = useState<any[]>([]);
     const [taxes, setTaxes] = useState<any[]>([]);
     const [search, setSearch] = useState("");
-    const [selectedPortion, setSelectedPortion] = useState<"ticket" | "taxes">("ticket");
+    const [selectedPortion, setSelectedPortion] = useState<"ticket" | "taxes" | "addons">("ticket");
     const [loading, setLoading] = useState<boolean>(true);
     const [selectedTicket, setSelectedTicket] = useState<any | null>(null);
     const [modalOpen, setModalOpen] = useState<boolean>(false);
@@ -44,6 +47,10 @@ export default function TicketManagementPage() {
     const [expandedId, setExpandedId] = useState<string | null>(null);
     const [selectedTax, setSelectedTax] = useState<any | null>(null);
     const [taxModalOpen, setTaxModalOpen] = useState<boolean>(false);
+    const [addons, setAddons] = useState<any[]>([]);
+    const [selectedAddon, setSelectedAddon] = useState<any | null>(null);
+    const [addonModalOpen, setAddonModalOpen] = useState<boolean>(false);
+    const [deleteAddonId, setDeleteAddonId] = useState<string | null>(null);
 
     const { selectedEvent } = useTicketing();
 
@@ -67,6 +74,18 @@ export default function TicketManagementPage() {
             setTaxes(data);
         } catch (error) {
             toast.error("Failed to fetch taxes");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function loadAddons() {
+        try {
+            setLoading(true);
+            const data = await fetchAddons(selectedEvent.id);
+            setAddons(data);
+        } catch (error) {
+            toast.error("Failed to fetch addons");
         } finally {
             setLoading(false);
         }
@@ -105,12 +124,17 @@ export default function TicketManagementPage() {
         setDeleteTaxId(id);
     }
 
+    async function handlAddonDelete(id: string) {
+        setDeleteAddonId(id);
+    }
+
     async function ConfirmTaxDelete() {
         if (!deleteTaxId) return;
 
         try {
             await deleteTax(deleteTaxId);
             toast.success("Tax deleted successfully");
+            loadTaxes();
         } catch (err) {
             console.error(err);
             toast.error("Failed to delete Tax");
@@ -134,13 +158,31 @@ export default function TicketManagementPage() {
         }
     }
 
+    async function confirmAddonDelete() {
+        if (!deleteAddonId) return;
+
+        try {
+            await deleteAddon(deleteAddonId);
+            toast.success("Addon Deleted successfully");
+            loadAddons();
+        } catch (error) {
+            toast.error("Failed to delete Addon");
+            console.error(error);
+        } finally {
+            setDeleteAddonId(null);
+        }
+    }
+
     function openCreateModal() {
         if (selectedPortion === "ticket") {
             setSelectedTicket(null);
             setModalOpen(true);
-        } else {
+        } else if (selectedPortion === "taxes") {
             setSelectedTax(null);
             setTaxModalOpen(true);
+        } else {
+            setSelectedAddon(null);
+            setAddonModalOpen(true);
         }
     }
 
@@ -152,6 +194,11 @@ export default function TicketManagementPage() {
     function openEditModal(ticket: any) {
         setSelectedTicket(ticket);
         setModalOpen(true);
+    }
+
+    function openAddonEdit(addon: any) {
+        setSelectedAddon(addon);
+        setAddonModalOpen(true);
     }
 
     const formatDateRange = (startDate: string, endDate?: string) => {
@@ -190,7 +237,11 @@ export default function TicketManagementPage() {
 
     useEffect(() => {
         if (selectedEvent?.id) {
-            selectedPortion === "ticket" ? loadTickets() : loadTaxes();
+            selectedPortion === "ticket" ?
+                loadTickets() :
+                selectedPortion === "taxes" ?
+                    loadTaxes() :
+                    loadAddons();
         }
     }, [selectedEvent, selectedPortion]);
 
@@ -202,28 +253,7 @@ export default function TicketManagementPage() {
 
     return (
         <>
-            <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white rounded-2xl p-2 md:p-4 shadow-xl flex gap-4 items-center mb-6 lg:mb-0">
-                {
-                    selectedEvent?.logo ?
-                        (<img src={`${process.env.NEXT_PUBLIC_BASE_API}${selectedEvent?.logo}`} alt={selectedEvent?.name} className=" w-12 h-12 md:w-24 md:h-24" />) :
-                        (<Calendar size={32} className="text-white mr-4 " />)
-                }
-                <div>
-                    <h1 className="text-xl md:text-2xl font-bold mb-3 tracking-tight">
-                        {selectedEvent?.name || "Event"}
-                    </h1>
-                    <div className="flex flex-wrap items-center gap-3 text-indigo-100 text-xs md:text-sm">
-                        <span className="truncate">{selectedEvent?.location}</span>
-                        <span>•</span>
-                        <span>
-                            {formatDateRange(
-                                selectedEvent?.start_date,
-                                selectedEvent?.end_date
-                            )}
-                        </span>
-                    </div>
-                </div>
-            </div>
+            <EventBanner selectedEvent={selectedEvent} />
             <div className="min-h-screen  lg:p-8">
                 <div className="space-y-6">
 
@@ -231,7 +261,7 @@ export default function TicketManagementPage() {
                     <div className="flex flex-row justify-between items-start md:items-center gap-6">
                         <div>
                             <h1 className="text-2xl  font-bold bg-gradient-to-r from-indigo-600 to-purple-900 bg-clip-text text-transparent mb-2">
-                                {selectedPortion === "ticket" ? "Tickets" : "Taxes"}  Management
+                                {selectedPortion === "ticket" ? "Tickets" : selectedPortion === "taxes" ? "Taxes" : "Addons"}  Management
                             </h1>
                         </div>
                         <Button
@@ -239,7 +269,7 @@ export default function TicketManagementPage() {
                             className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
                         >
                             <Plus size={20} />
-                            Create {selectedPortion === "ticket" ? "Tickets" : "Taxes"}
+                            Create {selectedPortion === "ticket" ? "Tickets" : selectedPortion === "taxes" ? "Taxes" : "Addons"}
                         </Button>
                     </div>
 
@@ -266,6 +296,10 @@ export default function TicketManagementPage() {
                                     <Button onClick={() => setSelectedPortion("taxes")} variant={selectedPortion === "taxes" ? "default" : "outline"}>
                                         <Tags size={20} />
                                         <span className="hidden md:block">Taxes</span>
+                                    </Button>
+                                    <Button onClick={() => setSelectedPortion("addons")} variant={selectedPortion === "addons" ? "default" : "outline"}>
+                                        <GitForkIcon />
+                                        <span className=" hidden md:block">Addons</span>
                                     </Button>
                                 </div>
                             </div>
@@ -371,12 +405,17 @@ export default function TicketManagementPage() {
                                                                         const now = new Date();
 
                                                                         // Check if early bird is active
-                                                                        const earlyBirdActive =
-                                                                            ticket.early_bird_enabled &&
-                                                                            ticket.early_bird_start &&
-                                                                            ticket.early_bird_end &&
-                                                                            new Date(ticket.early_bird_start) <= now &&
-                                                                            now <= new Date(ticket.early_bird_end);
+                                                                        let earlyBirdActive = false;
+
+                                                                        if (ticket.early_bird_enabled && ticket.early_bird_start && ticket.early_bird_end) {
+                                                                            const earlyBirdStart = new Date(ticket.early_bird_start);
+                                                                            earlyBirdStart.setHours(0, 0, 0, 0);
+
+                                                                            const earlyBirdEnd = new Date(ticket.early_bird_end);
+                                                                            earlyBirdEnd.setHours(23, 59, 59, 999);
+
+                                                                            earlyBirdActive = earlyBirdStart <= now && now <= earlyBirdEnd;
+                                                                        }
 
 
                                                                         let displayPrice = originalPrice;
@@ -803,6 +842,97 @@ export default function TicketManagementPage() {
                             )}
                         </>
                     )}
+                    {selectedPortion === "addons" && (
+                        <>
+                            {addons.length === 0 && (
+                                <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-16">
+                                    <div className="text-center">
+                                        <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto">
+                                            <GitForkIcon className="h-10 w-10 text-slate-400" />
+                                        </div>
+                                        <h3 className="text-xl font-semibold text-slate-800 mb-2">
+                                            No Addons Found
+                                        </h3>
+
+                                        <p className="text-slate-500 mb-6">
+                                            {search ? "Try adjusting your search terms" : "Get started by creating your first event Addon"}
+                                        </p>
+                                        <Button
+                                            onClick={openCreateModal}
+                                            className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl">
+                                            <Plus size={16} className="mf-2" />
+                                            Create your First Addon
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
+                            {addons.length > 0 && (
+                                <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+                                    <div className="overflow-x-auto w-full">
+                                        <table className="min-w-full">
+                                            <thead className="bg-gray-50 border- border-slate-200">
+                                                <tr>
+                                                    <th className="px-4 py-4 text-left text-sm font-semibold text-slate-700 whitespace-nowrap">Addon Name</th>
+                                                    <th className="px-4 py-4 text-left text-sm font-semibold text-slate-700">Type</th>
+                                                    <th className="px-4 py-4 text-left text-sm font-semibold text-slate-700">Value</th>
+                                                    <th className="px-4 py-4 text-left text-sm font-semibold text-slate-700 text-center">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-100">
+                                                {addons.map((addon, idx) => (
+                                                    <tr
+                                                        key={addon.id}
+                                                        className={`transition-colors ${idx % 2 === 0 ? "bg-white" : "bg-slate-50"} hover:bg-slate-50`}
+                                                    >
+                                                        <td className="px-4 py-3 text-sm font-semibold text-slate-900 whitespace-nowrap">{addon.addon_name}</td>
+                                                        <td className="px-4 py-3 capitalize">
+                                                            <span className={`px-2 py-1 rounded-md text-xs font-medium ${addon.addon_type === "percentage"
+                                                                ? "bg-blue-100 text-blue-700"
+                                                                : "bg-green-100 text-green-800"
+                                                                }`}>
+                                                                {addon.addon_type}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-4 py-3 text-sm text-slate-700 whitespace-nowrap">
+                                                            {addon.addon_type === "percentage"
+                                                                ? `${addon.addon_value} %`
+                                                                : `${selectedEvent.currency_symbol} ${addon.addon_value}`}
+                                                        </td>
+                                                        <td className="px-6 py-4">
+                                                            <div className="flex items-center justify-center gap-2">
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="ghost"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        openAddonEdit(addon);
+                                                                    }}
+                                                                    className="w-7 h-7 p-0 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all duration-200 hover:scale-105"
+                                                                >
+                                                                    <Edit size={14} />
+                                                                </Button>
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="ghost"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handlAddonDelete(addon.id);
+                                                                    }}
+                                                                    className="w-7 h-7 p-0 rounded-md bg-red-100 hover:bg-red-200 hover:text-red-700 text-red-600 transition-all duration-200 hover:scale-105"
+                                                                >
+                                                                    <Trash2 size={14} />
+                                                                </Button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    )}
                 </div>
 
                 {/* Ticket Modal */}
@@ -822,6 +952,14 @@ export default function TicketManagementPage() {
                     onSaved={loadTaxes}
                 />
 
+                <AddonModal
+                    open={addonModalOpen}
+                    onClose={() => setAddonModalOpen(false)}
+                    addon={selectedAddon}
+                    eventId={selectedEvent.id}
+                    onSaved={loadAddons}
+                />
+
 
                 {/* Delete Confirmation */}
                 <ConfirmDialog
@@ -838,6 +976,14 @@ export default function TicketManagementPage() {
                     onConfirm={ConfirmTaxDelete}
                     title="Delete Tax"
                     message="Are you sure you want to delete this Tax? This action cannot be undone."
+                />
+
+                <ConfirmDialog
+                    open={!!deleteAddonId}
+                    onClose={() => setDeleteAddonId(null)}
+                    onConfirm={confirmAddonDelete}
+                    title="Delete Addon"
+                    message="Are you sure you want to delete this Addon? This action cannot be undone."
                 />
             </div>
         </>

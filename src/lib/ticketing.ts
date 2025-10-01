@@ -53,3 +53,28 @@ export async function updateStatus(id: string, isActive: boolean) {
   const res = await api.patch(`/taxes/status/${id}`, isActive);
   return res.data;
 }
+
+export async function createAddon(eventId: string, data: any) {
+  const res = await api.post(`/addon/${eventId}`, data);
+  return res.data;
+}
+
+export async function updateAddon(id: string, data: any) {
+  const res = await api.patch(`/addon/${id}`, data);
+  return res.data;
+}
+
+export async function deleteAddon(id: string) {
+  const res = await api.delete(`/addon/${id}`);
+  return res.data;
+}
+
+export async function fetchAddons(eventId: string) {
+  const res = await api.get(`/addon/${eventId}`);
+  return res.data;
+}
+
+export async function fetchAddonById(id: string) {
+  const res = await api.get(`/addon/${id}`);
+  return res.data;
+}

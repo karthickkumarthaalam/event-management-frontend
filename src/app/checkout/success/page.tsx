@@ -10,12 +10,21 @@ interface Order {
     totalAmount: number;
     purchaserName: string;
     purchaseEmail: string;
-    items: { name: string; quantity: number; totalAmount: number; }[];
+    items: {
+        name: string;
+        quantity: number;
+        totalAmount: number;
+    }[];
     currency: string;
     event?: {
         name: string;
         logo?: string;
         location?: string;
+    };
+    addons: {
+        addonName: string;
+        quantity: number;
+        totalAmount: number;
     };
 }
 
@@ -36,22 +45,39 @@ export default function PaymentSuccessPage() {
         const fetchOrder = async () => {
             try {
                 const data = await fetchSingleOrder(orderId, true);
+                const groupedItems = Object.values(
+                    data.Items.reduce((acc: any, item: any) => {
+                        const key = item.ticketClass;
+                        if (!acc[key]) {
+                            acc[key] = {
+                                name: item.ticketClass,
+                                quantity: 0,
+                                totalAmount: 0,
+                            };
+                        }
+                        acc[key].quantity += item.quantity;
+                        acc[key].totalAmount += parseFloat(item.totalAmount);
+                        return acc;
+                    }, {})
+                ) as { name: string; quantity: number; totalAmount: number; }[];
+
                 const transfromedOrder: Order = {
                     id: data.id,
                     totalAmount: parseFloat(data.totalAmount),
                     purchaserName: data.purchaserName,
                     purchaseEmail: data.purchaseEmail,
-                    items: data.Items.map((item: any) => ({
-                        name: item.ticketClass,
-                        quantity: item.quantity,
-                        totalAmount: parseFloat(item.totalAmount)
-                    })),
+                    items: groupedItems,
                     currency: data.event?.currency_symbol,
                     event: data.event ? {
                         name: data.event.name,
                         logo: data.event.logo,
                         location: data.event.location
-                    } : undefined
+                    } : undefined,
+                    addons: data.addons.map((addon: any) => ({
+                        addonName: addon.addonName,
+                        quantity: addon.quantity,
+                        totalAmount: addon.totalAmount
+                    }))
                 };
 
                 setOrder(transfromedOrder);
@@ -120,6 +146,16 @@ export default function PaymentSuccessPage() {
                             <span className="font-semibold text-gray-900">{order.currency} {item.totalAmount.toFixed(2)}</span>
                         </div>
                     ))}
+                </div>
+                <div className="divied-y divide-gray-300">
+                    {
+                        order.addons?.map((addon: any, idx: number) => (
+                            <div key={idx} className="flex justify-between py-2">
+                                <span className="text-gray-700">{addon.addonName} × {addon.quantity}</span>
+                                <span className="font-semibold text-gray-900">{order.currency} {parseFloat(addon.totalAmount).toFixed(2)}</span>
+                            </div>
+                        ))
+                    }
                 </div>
                 <div className="border-t border-gray-200 pt-3 flex justify-between font-semibold text-gray-900 text-lg">
                     <span>Total Paid</span>

@@ -27,6 +27,10 @@ export default function Home() {
     );
   }
 
+  if (isAuthenticated) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-100  to-green-100">
 

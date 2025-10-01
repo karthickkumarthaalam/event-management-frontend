@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Switch } from "@/components/ui/switch";
-import { PlusCircle, Trash2, Tag, Calendar, Gift, DollarSign } from "lucide-react";
+import { Tag, Calendar, Gift, DollarSign } from "lucide-react";
 
 interface TicketModalProps {
     open: boolean;
@@ -16,13 +16,6 @@ interface TicketModalProps {
     ticket: any | null;
     eventId: string;
     onSaved: () => void;
-}
-
-interface Addon {
-    id?: string | null;
-    addon_name: string;
-    addon_type: "fixed" | "percentage";
-    addon_value: number;
 }
 
 interface Tax {
@@ -53,7 +46,6 @@ export default function TicketModal({ open, onClose, ticket, eventId, onSaved }:
         early_bird_end: "",
     });
 
-    const [addons, setAddons] = useState<Addon[]>([]);
     const [taxes, setTaxes] = useState<Tax[]>([]);
     const [selectedTaxIds, setSelectedTaxIds] = useState<string[]>([]);
 
@@ -93,7 +85,6 @@ export default function TicketModal({ open, onClose, ticket, eventId, onSaved }:
                 early_bird_start: ticket.early_bird_start?.split("T")[0] || "",
                 early_bird_end: ticket.early_bird_end?.split("T")[0] || "",
             });
-            setAddons(ticket.addons || []);
             setSelectedTaxIds(ticket.taxes?.map((t: Tax) => t.id) || []);
         } else {
             setForm({
@@ -114,26 +105,12 @@ export default function TicketModal({ open, onClose, ticket, eventId, onSaved }:
                 early_bird_start: "",
                 early_bird_end: "",
             });
-            setAddons([]);
             setSelectedTaxIds([]);
         }
         setError(null);
         setFieldErrors({});
     }, [ticket, open]);
 
-    function handleAddonChange(index: number, field: keyof Addon, value: string | number) {
-        const updated = [...addons];
-        updated[index][field] = value as any;
-        setAddons(updated);
-    }
-
-    function addAddon() {
-        setAddons([...addons, { addon_name: "", addon_type: "fixed", addon_value: 0 }]);
-    }
-
-    function removeAddon(index: number) {
-        setAddons(addons.filter((_, i) => i !== index));
-    }
 
     function toggleTax(id: string) {
         if (selectedTaxIds.includes(id)) {
@@ -166,12 +143,6 @@ export default function TicketModal({ open, onClose, ticket, eventId, onSaved }:
         try {
             const payload = {
                 ...form,
-                addons: addons?.map(a => ({
-                    id: a.id,
-                    addon_name: a.addon_name,
-                    addon_type: a.addon_type,
-                    addon_value: a.addon_value,
-                })),
                 taxIds: selectedTaxIds,
             };
 
@@ -274,29 +245,20 @@ export default function TicketModal({ open, onClose, ticket, eventId, onSaved }:
                         {form.early_bird_enabled && (
                             <div className="grid grid-cols-2 gap-3">
                                 <InputField label="Early Bird Value" type="number" value={form.early_bird_discount_value} onChange={(e) => setForm({ ...form, early_bird_discount_value: e.target.value })} error={fieldErrors.early_bird_discount_value} />
-                                <InputField label="Early Bird Start" type="date" value={form.early_bird_start} onChange={(e) => setForm({ ...form, early_bird_start: e.target.value })} error={fieldErrors.early_bird_start} />
-                                <InputField label="Early Bird End" type="date" value={form.early_bird_end} onChange={(e) => setForm({ ...form, early_bird_end: e.target.value })} error={fieldErrors.early_bird_end} />
+                                <InputField
+                                    label="Early Bird Start"
+                                    type="date"
+                                    value={form.early_bird_start}
+                                    onChange={(e) => setForm({ ...form, early_bird_start: `${e.target.value} 00:00:00` })}
+                                />
+                                <InputField
+                                    label="Early Bird End"
+                                    type="date"
+                                    value={form.early_bird_end}
+                                    onChange={(e) => setForm({ ...form, early_bird_end: `${e.target.value} 23:59:59` })}
+                                />
                             </div>
                         )}
-                    </Section>
-
-                    {/* Addons */}
-                    <Section title="Addons">
-                        <Button variant="secondary" size="sm" onClick={addAddon} className="mb-2 bg-gradient-to-r from-primary to-secondary text-white"><PlusCircle size={16} /> Add Addon</Button>
-                        {addons.map((addon, index) => (
-                            <div key={index} className="flex items-center gap-2 mb-2">
-                                <Input placeholder="Addon Name" value={addon.addon_name} onChange={(e) => handleAddonChange(index, "addon_name", e.target.value)} />
-                                <Select value={addon.addon_type} onValueChange={(v) => handleAddonChange(index, "addon_type", v)}>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="fixed">Fixed</SelectItem>
-                                        <SelectItem value="percentage">Percentage</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <Input type="number" placeholder="Value" value={addon.addon_value} onChange={(e) => handleAddonChange(index, "addon_value", +e.target.value)} />
-                                <Button variant="ghost" size="icon" onClick={() => removeAddon(index)}><Trash2 size={16} /></Button>
-                            </div>
-                        ))}
                     </Section>
 
                     {/* Taxes */}
