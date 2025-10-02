@@ -258,9 +258,9 @@ export default function TicketManagementPage() {
                 <div className="space-y-6">
 
                     {/* Header */}
-                    <div className="flex flex-row justify-between items-start md:items-center gap-6">
+                    <div className="flex justify-between items-center   gap-3">
                         <div>
-                            <h1 className="text-2xl  font-bold bg-gradient-to-r from-indigo-600 to-purple-900 bg-clip-text text-transparent mb-2">
+                            <h1 className="text-xl md:text-2xl  font-bold bg-gradient-to-r from-indigo-600 to-purple-900 bg-clip-text text-transparent mb-2">
                                 {selectedPortion === "ticket" ? "Tickets" : selectedPortion === "taxes" ? "Taxes" : "Addons"}  Management
                             </h1>
                         </div>

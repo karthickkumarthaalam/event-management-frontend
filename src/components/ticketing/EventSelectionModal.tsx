@@ -33,7 +33,7 @@ export default function EventSelectionModal() {
         <div className="fixed inset-0 z-[51] flex items-center justify-center bg-black/20 backdrop-blur-sm">
             <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-2xl mx-4 border border-gray-100">
                 <div className="flex items-center justify-center mb-5">
-                    <h1 className="text-2xl font-bold text-gray-800 mb-4">
+                    <h1 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-gray-500 to-gray-900 text-transparent bg-clip-text mb-4">
                         Select an Event to Manage Tickets
                     </h1>
                 </div>

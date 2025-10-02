@@ -30,10 +30,15 @@ interface OrderItem {
 }
 
 interface Purchaser {
-    purchaserName: string;
-    purchaseEmail: string;
-    purchaseMobile: string;
-    purchaseBillingAddress?: string;
+    name: string;
+    email: string;
+    phone: string;
+    line1: string;
+    line2?: string;
+    city: string;
+    state: string;
+    country: string;
+    postal_code: string;
 }
 
 interface EventDetails {
@@ -84,6 +89,12 @@ export default function CheckoutPage() {
             document.documentElement.classList.remove("dark");
         }
     };
+
+    useEffect(() => {
+        if (paymentModes.length > 0) {
+            setSelectedPaymentMode(paymentModes[0]);
+        }
+    }, [paymentModes]);
 
 
     const fetchOrder = async () => {
@@ -143,12 +154,7 @@ export default function CheckoutPage() {
 
             const transformedOrder: Order = {
                 id: data.id,
-                purchaser: {
-                    purchaserName: data.purchaserName,
-                    purchaseEmail: data.purchaseEmail,
-                    purchaseMobile: data.purchaseMobile,
-                    purchaseBillingAddress: data.purchaseBillingAddress,
-                },
+                purchaser: data.purchaser,
                 items: groupedItems,
                 addonsDetails,
                 totalAmount: parseFloat(data.totalAmount),
@@ -171,6 +177,7 @@ export default function CheckoutPage() {
                     ? {
                         id: data.event.id,
                         name: data.event.name,
+                        country: data.event.country,
                         location: data.event.location,
                         startDate: data.event.start_date,
                         endDate: data.event.end_date,
@@ -386,22 +393,40 @@ export default function CheckoutPage() {
                         <div className="p-4 md:p-6 grid md:grid-cols-2 gap-4">
                             <div className="space-y-1">
                                 <label className="text-sm text-gray-500 dark:text-gray-300">Full Name</label>
-                                <p className="font-medium text-gray-900 dark:text-gray-200">{purchaser.purchaserName}</p>
+                                <p className="font-medium text-gray-900 dark:text-gray-200">{purchaser.name}</p>
                             </div>
                             <div className="space-y-1">
                                 <label className="text-sm text-gray-500 dark:text-gray-300">Email Address</label>
-                                <p className="font-medium text-gray-900 dark:text-gray-200">{purchaser.purchaseEmail}</p>
+                                <p className="font-medium text-gray-900 dark:text-gray-200">{purchaser.email}</p>
                             </div>
                             <div className="space-y-1">
                                 <label className="text-sm text-gray-500 dark:text-gray-300">Mobile Number</label>
-                                <p className="font-medium text-gray-900 dark:text-gray-200">{purchaser.purchaseMobile}</p>
+                                <p className="font-medium text-gray-900 dark:text-gray-200">{purchaser.phone}</p>
                             </div>
-                            {purchaser.purchaseBillingAddress && (
-                                <div className="md:col-span-2 space-y-1">
-                                    <label className="text-sm text-gray-500 dark:text-gray-300">Billing Address</label>
-                                    <p className="font-medium text-gray-900 dark:text-gray-200">{purchaser.purchaseBillingAddress}</p>
-                                </div>
-                            )}
+                            <div className="space-y-1">
+                                <label className="text-sm text-gray-500 dark:text-gray-300">Address line 1</label>
+                                <p className="font-medium text-gray-900 dark:text-gray-200">{purchaser.line1}</p>
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-sm text-gray-500 dark:text-gray-300">Address line 2</label>
+                                <p className="font-medium text-gray-900 dark:text-gray-200">{purchaser.line2}</p>
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-sm text-gray-500 dark:text-gray-300">City</label>
+                                <p className="font-medium text-gray-900 dark:text-gray-200">{purchaser.city}</p>
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-sm text-gray-500 dark:text-gray-300">State</label>
+                                <p className="font-medium text-gray-900 dark:text-gray-200">{purchaser.state}</p>
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-sm text-gray-500 dark:text-gray-300">Country</label>
+                                <p className="font-medium text-gray-900 dark:text-gray-200">{purchaser.country}</p>
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-sm text-gray-500 dark:text-gray-300">Postal Code</label>
+                                <p className="font-medium text-gray-900 dark:text-gray-200">{purchaser.postal_code}</p>
+                            </div>
                         </div>
                     </div>
                 </div>

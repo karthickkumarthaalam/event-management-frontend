@@ -15,7 +15,7 @@ export function TicketingProvider({ children }: { children: React.ReactNode; }) 
     useEffect(() => {
         const savedEvent = localStorage.getItem("selected_event");
         if (savedEvent) {
-            setSelectedEvent(JSON.parse(savedEvent));
+            setSelectedEventState(JSON.parse(savedEvent));
         }
     }, []);
 

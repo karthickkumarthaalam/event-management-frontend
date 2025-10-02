@@ -38,3 +38,19 @@ export const processPayment = async (
   });
   return res.data; // Ex
 };
+
+export const fetchOrdersSummary = async (eventId: string) => {
+  const res = await api.get(`/orders/summary/${eventId}`);
+  return res.data;
+};
+
+export const fetchOrderReport = async (
+  eventId: string,
+  page: number = 1,
+  limit: number = 10
+) => {
+  const res = await api.get(
+    `/orders/report?eventId=${eventId}&page=${page}&limit=${limit}`
+  );
+  return res.data;
+};

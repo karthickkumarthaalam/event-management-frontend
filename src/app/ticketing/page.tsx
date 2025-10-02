@@ -4,7 +4,7 @@ import { useState } from "react";
 import NavbarLayout from "@/components/layouts/NavbarLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { LayoutDashboard, Ticket, ChartCandlestick, ShoppingCart } from "lucide-react";
-import Dashboard from "@/components/ticketing/Dashboard";
+import OrdersDashboard from "@/components/ticketing/Dashboard";
 import { TicketingProvider } from "@/contexts/TicketingContextT";
 import Tickets from "@/components/ticketing/Tickets";
 import { useTicketing } from "@/contexts/TicketingContextT";
@@ -80,7 +80,7 @@ function TicketingContent() {
                         </nav>
 
                         <main className="flex-1 md:p-8">
-                            {activeTab === "dashboard" && <Dashboard />}
+                            {activeTab === "dashboard" && <OrdersDashboard />}
                             {activeTab === "tickets" && <Tickets />}
                             {activeTab === "reports" && <Reports />}
                             {activeTab === "booking" && <Booking />}

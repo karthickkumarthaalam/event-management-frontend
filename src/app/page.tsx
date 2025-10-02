@@ -16,7 +16,7 @@ export default function Home() {
     }
   }, [isAuthenticated, isLoading, router]);
 
-  if (isLoading) {
+  if (isLoading || isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
@@ -25,10 +25,6 @@ export default function Home() {
         </div>
       </div>
     );
-  }
-
-  if (isAuthenticated) {
-    return null;
   }
 
   return (

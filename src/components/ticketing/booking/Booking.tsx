@@ -32,14 +32,23 @@ type CreateOrderItemDto = {
     taxes?: CreateOrderItemTaxDto[];
 };
 
+type PurchaserDto = {
+    name: string;
+    email: string;
+    phone: string;
+    line1: string;
+    line2?: string;
+    city: string;
+    state: string;
+    country: string;
+    postal_code: string;
+};
+
 type CreateOrderDto = {
     eventId: string;
-    purchaserName: string;
-    purchaseEmail: string;
-    purchaseMobile: string;
-    purchaseBillingAddress?: string;
     promoCode?: string;
     affiliateCode?: string;
+    purchaser: PurchaserDto;
     addons: OrderAddonDto[];
     items: CreateOrderItemDto[];
 };
@@ -105,12 +114,19 @@ export default function Booking() {
     const [step, setStep] = useState<Step>("cart");
     const { selectedEvent } = useTicketing();
 
-    const [purchaser, setPurchaser] = useState<Purchaser>({
-        purchaserName: "",
-        purchaseEmail: "",
-        purchaseMobile: "",
-        purchaseBillingAddress: "",
-    });
+    const initiatePurchaser = {
+        name: "",
+        email: "",
+        phone: "",
+        line1: "",
+        line2: "",
+        city: "",
+        state: "",
+        country: "",
+        postal_code: ""
+    };
+
+    const [purchaser, setPurchaser] = useState<PurchaserDto>(initiatePurchaser);
 
     const fetchAddonsForBooking = async () => {
         try {
@@ -300,10 +316,7 @@ export default function Booking() {
     const buildOrderDto = (): CreateOrderDto => {
         return {
             eventId: selectedEvent.id,
-            purchaserName: purchaser.purchaserName,
-            purchaseEmail: purchaser.purchaseEmail,
-            purchaseMobile: purchaser.purchaseMobile,
-            purchaseBillingAddress: purchaser.purchaseBillingAddress || undefined,
+            purchaser: purchaser,
             promoCode: promoCode || undefined,
             items: cartDetails.map((item) => ({
                 ticketRefId: item.ticketId,
@@ -322,8 +335,6 @@ export default function Booking() {
     };
 
     const handleCheckout = async () => {
-        if (!isFormValid()) return;
-
         setIsProcessing(true);
         try {
             const orderDto = buildOrderDto();
@@ -334,12 +345,7 @@ export default function Booking() {
             setPromoCode("");
             setPromoError("");
             setDiscountAmount(0);
-            setPurchaser({
-                purchaserName: "",
-                purchaseEmail: "",
-                purchaseMobile: "",
-                purchaseBillingAddress: "",
-            });
+            setPurchaser(initiatePurchaser);
             setStep("cart");
             toast.success("Payment link sent successfully to purchaser’s email!");
         } catch (error: any) {
@@ -350,16 +356,6 @@ export default function Booking() {
         }
     };
 
-    const isFormValid = () => {
-        if (step === "purchaser") {
-            return (
-                purchaser.purchaserName &&
-                purchaser.purchaseEmail &&
-                purchaser.purchaseMobile
-            );
-        }
-        return cart.length > 0;
-    };
 
     const ProgressIndicator = () => {
         const steps: Step[] = ["cart", "purchaser", "review"];
@@ -650,7 +646,7 @@ export default function Booking() {
 
             case "purchaser":
                 return (
-                    <div className="max-w-2xl mx-auto bg-white shadow-xl rounded-3xl p-4 md:p-10 border border-gray-300">
+                    <div className="max-w-3xl mx-auto bg-white shadow-xl rounded-3xl p-4 md:p-10 border border-gray-300">
                         {/* Header */}
                         <div className="flex items-center gap-4 mb-10">
                             <Users className="w-6 h-6 text-indigo-600" />
@@ -664,27 +660,27 @@ export default function Booking() {
                             {[
                                 {
                                     label: "Full Name",
-                                    value: purchaser.purchaserName,
+                                    value: purchaser.name,
                                     placeholder: "John Doe",
                                     type: "text",
                                     required: true,
-                                    key: "purchaserName",
+                                    key: "name",
                                 },
                                 {
                                     label: "Email",
-                                    value: purchaser.purchaseEmail,
+                                    value: purchaser.email,
                                     placeholder: "you@example.com",
                                     type: "email",
                                     required: true,
-                                    key: "purchaseEmail",
+                                    key: "email",
                                 },
                                 {
                                     label: "Mobile",
-                                    value: purchaser.purchaseMobile,
+                                    value: purchaser.phone,
                                     placeholder: "+91 98765 43210",
                                     type: "tel",
                                     required: true,
-                                    key: "purchaseMobile",
+                                    key: "phone",
                                 },
                             ].map(({ label, value, placeholder, type, required, key }) => (
                                 <div key={key}>
@@ -704,7 +700,7 @@ export default function Booking() {
                             ))}
 
                             {/* Billing Address */}
-                            <div>
+                            {/* <div>
                                 <label className="block text-sm font-medium text-gray-900 mb-1">
                                     Billing Address <span className="text-gray-500 text-sm">(optional)</span>
                                 </label>
@@ -717,6 +713,90 @@ export default function Booking() {
                                     className="w-full px-5 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-600 focus:outline-none transition shadow-sm"
                                     rows={4}
                                 />
+                            </div> */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900 mb-1">Address Line 1 <span className="text-red-500">*</span></label>
+                                    <input
+                                        type="text"
+                                        placeholder="Enter address line 1"
+                                        value={purchaser.line1}
+                                        onChange={(e) =>
+                                            setPurchaser({ ...purchaser, line1: e.target.value })
+                                        }
+                                        className="w-full px-5 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-600 focus:outline-none transition shadow-sm"
+
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900 mb-1">Address Line 2 </label>
+                                    <input
+                                        type="text"
+                                        placeholder="Enter address line 2"
+                                        value={purchaser.line2}
+                                        onChange={(e) =>
+                                            setPurchaser({ ...purchaser, line2: e.target.value })
+                                        }
+                                        className="w-full px-5 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-600 focus:outline-none transition shadow-sm"
+
+                                    />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900 mb-1">City <span className="text-red-500">*</span></label>
+                                    <input
+                                        type="text"
+                                        placeholder="eg: Chennai"
+                                        value={purchaser.city}
+                                        onChange={(e) =>
+                                            setPurchaser({ ...purchaser, city: e.target.value })
+                                        }
+                                        className="w-full px-5 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-600 focus:outline-none transition shadow-sm"
+
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900 mb-1">State <span className="text-red-500">*</span></label>
+                                    <input
+                                        type="text"
+                                        placeholder="eg: TamilNadu"
+                                        value={purchaser.state}
+                                        onChange={(e) =>
+                                            setPurchaser({ ...purchaser, state: e.target.value })
+                                        }
+                                        className="w-full px-5 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-600 focus:outline-none transition shadow-sm"
+
+                                    />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900 mb-1">Country <span className="text-red-500">*</span></label>
+                                    <input
+                                        type="text"
+                                        placeholder="eg: India"
+                                        value={purchaser.country}
+                                        onChange={(e) =>
+                                            setPurchaser({ ...purchaser, country: e.target.value })
+                                        }
+                                        className="w-full px-5 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-600 focus:outline-none transition shadow-sm"
+
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900 mb-1">Postal Code <span className="text-red-500">*</span></label>
+                                    <input
+                                        type="text"
+                                        placeholder="eg: 600048"
+                                        value={purchaser.postal_code}
+                                        onChange={(e) =>
+                                            setPurchaser({ ...purchaser, postal_code: e.target.value })
+                                        }
+                                        className="w-full px-5 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-600 focus:outline-none transition shadow-sm"
+
+                                    />
+                                </div>
                             </div>
                         </div>
 
@@ -731,7 +811,7 @@ export default function Booking() {
                             <button
                                 className="flex-1 bg-gradient-to-r from-gray-700 to-black hover:from-gray-800 hover:to-gray-900 text-white font-medium py-3 rounded-xl transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                                 onClick={() => setStep("review")}
-                                disabled={!purchaser.purchaserName || !purchaser.purchaseEmail || !purchaser.purchaseMobile}
+                                disabled={!purchaser.name || !purchaser.email || !purchaser.phone || !purchaser.line1 || !purchaser.city || !purchaser.state || !purchaser.country || !purchaser.postal_code}
                             >
                                 Continue
                             </button>
@@ -894,25 +974,47 @@ export default function Booking() {
                                         </h3>
                                     </div>
                                     <div className="p-4 md:p-6">
+                                        <div className="space-y-1  mb-2">
+                                            <label className="text-sm text-gray-600">Full Name</label>
+                                            <p className="font-medium text-gray-900">{purchaser.name}</p>
+                                        </div>
                                         <div className="grid md:grid-cols-2 gap-4">
                                             <div className="space-y-1">
-                                                <label className="text-sm text-gray-600">Full Name</label>
-                                                <p className="font-medium text-gray-900">{purchaser.purchaserName}</p>
-                                            </div>
-                                            <div className="space-y-1">
                                                 <label className="text-sm text-gray-600">Email Address</label>
-                                                <p className="font-medium text-gray-900">{purchaser.purchaseEmail}</p>
+                                                <p className="font-medium text-gray-900">{purchaser.email}</p>
                                             </div>
                                             <div className="space-y-1">
                                                 <label className="text-sm text-gray-600">Mobile Number</label>
-                                                <p className="font-medium text-gray-900">{purchaser.purchaseMobile}</p>
+                                                <p className="font-medium text-gray-900">{purchaser.phone}</p>
                                             </div>
-                                            {purchaser.purchaseBillingAddress && (
-                                                <div className="md:col-span-2 space-y-1">
-                                                    <label className="text-sm text-gray-600">Billing Address</label>
-                                                    <p className="font-medium text-gray-900">{purchaser.purchaseBillingAddress}</p>
-                                                </div>
-                                            )}
+                                            <div className="space-y-1">
+                                                <label className="text-sm text-gray-600">Address Line 1 </label>
+                                                <p className="font-medium text-gray-900">{purchaser.line1}</p>
+                                            </div>
+                                            {
+                                                purchaser.line2 && (
+                                                    <div className="space-y-1">
+                                                        <label className="text-sm text-gray-600">Address Line 2</label>
+                                                        <p className="font-medium text-gray-900">{purchaser.line2}</p>
+                                                    </div>
+                                                )
+                                            }
+                                            <div className="space-y-1">
+                                                <label className="text-sm text-gray-600">City</label>
+                                                <p className="font-medium text-gray-900">{purchaser.city}</p>
+                                            </div>
+                                            <div className="space-y-1">
+                                                <label className="text-sm text-gray-600">State</label>
+                                                <p className="font-medium text-gray-900">{purchaser.state}</p>
+                                            </div>
+                                            <div className="space-y-1">
+                                                <label className="text-sm text-gray-600">Country</label>
+                                                <p className="font-medium text-gray-900">{purchaser.country}</p>
+                                            </div>
+                                            <div className="space-y-1">
+                                                <label className="text-sm text-gray-600">Postal Code</label>
+                                                <p className="font-medium text-gray-900">{purchaser.postal_code}</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
