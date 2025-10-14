@@ -260,13 +260,13 @@ export default function TicketManagementPage() {
                     {/* Header */}
                     <div className="flex justify-between items-center   gap-3">
                         <div>
-                            <h1 className="text-xl md:text-2xl  font-bold bg-gradient-to-r from-indigo-600 to-purple-900 bg-clip-text text-transparent mb-2">
+                            <h1 className="text-xl md:text-2xl  font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent mb-2">
                                 {selectedPortion === "ticket" ? "Tickets" : selectedPortion === "taxes" ? "Taxes" : "Addons"}  Management
                             </h1>
                         </div>
                         <Button
                             onClick={openCreateModal}
-                            className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                            className="flex items-center gap-2 bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
                         >
                             <Plus size={20} />
                             Create {selectedPortion === "ticket" ? "Tickets" : selectedPortion === "taxes" ? "Taxes" : "Addons"}
@@ -289,15 +289,15 @@ export default function TicketManagementPage() {
                             </div>
                             <div className="">
                                 <div className="flex items-center space-x-2">
-                                    <Button onClick={() => setSelectedPortion("ticket")} variant={selectedPortion === "ticket" ? "default" : "outline"}>
+                                    <Button onClick={() => setSelectedPortion("ticket")} className={`${selectedPortion === "ticket" ? "bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white" : "bg-white text-black"} hover:bg-gradient-to-br hover:from-blue-400 hover:to-blue-500 hover:text-white `}>
                                         <TicketCheckIcon size={20} />
                                         <span className="hidden md:block">Tickets</span>
                                     </Button>
-                                    <Button onClick={() => setSelectedPortion("taxes")} variant={selectedPortion === "taxes" ? "default" : "outline"}>
+                                    <Button onClick={() => setSelectedPortion("taxes")} className={`${selectedPortion === "taxes" ? "bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white" : "bg-white text-black"} hover:bg-gradient-to-br hover:from-blue-400 hover:to-blue-500 hover:text-white `} >
                                         <Tags size={20} />
                                         <span className="hidden md:block">Taxes</span>
                                     </Button>
-                                    <Button onClick={() => setSelectedPortion("addons")} variant={selectedPortion === "addons" ? "default" : "outline"}>
+                                    <Button onClick={() => setSelectedPortion("addons")} className={`${selectedPortion === "addons" ? "bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white" : "bg-white text-black"} hover:bg-gradient-to-br hover:from-blue-400 hover:to-blue-500 hover:text-white `}>
                                         <GitForkIcon />
                                         <span className=" hidden md:block">Addons</span>
                                     </Button>
@@ -334,22 +334,22 @@ export default function TicketManagementPage() {
                                         <table className="min-w-full">
                                             <thead className="bg-gray-50 border-b border-slate-200">
                                                 <tr>
-                                                    <th className="pl-6 pr-4 py-4 text-left text-sm font-semibold text-slate-700">
+                                                    <th className="pl-6 pr-4 py-4 text-left text-sm font-semibold text-slate-700 uppercase">
                                                         <div className="flex items-center gap-2">
                                                             <span>Ticket Details</span>
                                                             <ChevronDown size={14} className="text-slate-400" />
                                                         </div>
                                                     </th>
-                                                    <th className="px-4 py-4 text-left text-sm font-semibold text-slate-700 hidden sm:table-cell">
+                                                    <th className="px-4 py-4 text-left text-sm font-semibold text-slate-700 hidden uppercase sm:table-cell">
                                                         Price
                                                     </th>
-                                                    <th className="px-4 py-4 text-left text-sm font-semibold text-slate-700 hidden lg:table-cell">
+                                                    <th className="px-4 py-4 text-left text-sm font-semibold text-slate-700 hidden uppercase lg:table-cell">
                                                         Quantity
                                                     </th>
-                                                    <th className="px-4 py-4 text-left text-sm font-semibold text-slate-700 hidden xl:table-cell">
+                                                    <th className="px-4 py-4 text-left text-sm font-semibold text-slate-700 hidden  uppercase xl:table-cell">
                                                         Sales Period
                                                     </th>
-                                                    <th className="px-6 py-4 text-center text-sm font-semibold text-slate-700">
+                                                    <th className="px-6 py-4 text-center text-sm font-semibold uppercase text-slate-700">
                                                         Actions
                                                     </th>
                                                 </tr>

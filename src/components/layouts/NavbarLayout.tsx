@@ -23,16 +23,16 @@ export default function NavbarLayout({ children }: NavbarLayoutProps) {
     ];
 
     return (
-        <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-100 to-green-100 text-gray-900">
+        <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-indigo-50 text-gray-900">
 
             {/* Header */}
-            <header className="sticky top-0 z-50 bg-gradient-to-r from-slate-700 to-gray-900 border-b border-gray-800 shadow-md">
+            <header className="sticky top-0 z-50 bg-gradient-to-l from-gray-700 to-gray-900 border-b border-gray-800 shadow-md">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
 
                     {/* Logo */}
                     <Link href="/events" className="flex items-center space-x-2 group">
-                        <Calendar className="h-6 w-6 text-white group-hover:text-violet-400 transition-colors" />
-                        <span className="text-xl font-heading font-bold text-white group-hover:text-violet-400 transition-colors">
+                        <Calendar className="h-6 w-6 text-white group-hover:text-blue-500 transition-colors" />
+                        <span className="text-xl font-heading font-bold text-white group-hover:text-blue-500 transition-colors">
                             Thaalam
                         </span>
                     </Link>
@@ -44,8 +44,8 @@ export default function NavbarLayout({ children }: NavbarLayoutProps) {
                                 key={link.label}
                                 href={link.href}
                                 className={`relative transition duration-200 ${pathname === link.href
-                                    ? "text-violet-400 font-semibold"
-                                    : "text-gray-200 hover:text-violet-300"
+                                    ? "text-blue-500 font-semibold"
+                                    : "text-gray-200 hover:text-blue-400"
                                     }`}
                             >
                                 {link.label}
@@ -56,7 +56,7 @@ export default function NavbarLayout({ children }: NavbarLayoutProps) {
                     {/* Right Actions */}
                     <div className="flex items-center space-x-4">
                         <button
-                            className="hidden sm:flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white px-3 py-1.5 rounded-md transition"
+                            className="hidden sm:flex items-center gap-2 bg-gradient-to-br from-blue-500 to-blue-700 text-white px-3 py-1.5 rounded-md transition"
                             onClick={logout}
                         >
                             <LogOut className="h-4 w-4" />

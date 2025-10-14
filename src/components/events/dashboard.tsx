@@ -210,12 +210,12 @@ export default function Dashboard() {
                     {/* Header */}
                     <div className="flex  md:flex-row justify-between items-start md:items-center gap-4">
                         <div>
-                            <h1 className="text-2xl  font-bold bg-gradient-to-r from-indigo-600 to-purple-900 bg-clip-text text-transparent mb-2">
+                            <h1 className="text-2xl  font-bold bg-gradient-to-r from-blue-500 to-blue-700 bg-clip-text text-transparent mb-2">
                                 Dashboard
                             </h1>
                         </div>
                         <Button
-                            className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                            className="flex items-center gap-2 bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
                             onClick={() => setModalOpen(true)}
                         >
                             <Plus size={20} /> Create Event

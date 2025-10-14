@@ -54,3 +54,8 @@ export const fetchOrderReport = async (
   );
   return res.data;
 };
+
+export const generateToken = async (ticketId: string) => {
+  const res = await api.get(`/orders/token/${ticketId}`);
+  return res.data;
+};

@@ -35,12 +35,12 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100  to-green-100 relative">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br  from-blue-50  to-indigo-50 relative">
             <button
                 onClick={() => router.push('/')}
-                className="absolute top-6 left-6 flex items-center text-primary hover:text-indigo-600"
+                className="absolute top-6 left-6 flex items-center text-base font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-blue-700 hover:text-blue-600"
             >
-                <ArrowLeft className="w-5 h-5 mr-2" />
+                <ArrowLeft className="w-5 h-5 mr-2 " />
                 Back to Home
             </button>
             <div className="w-full max-w-md p-8 bg-white/80 backdrop-blur-md rounded-3xl shadow-2xl border border-gray-200 animate-fadeIn">
@@ -93,7 +93,7 @@ export default function Login() {
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full py-3  bg-gradient-to-r from-primary to-secondary text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-transform duration-200 disabled:opacity-50"
+                        className="w-full py-3  bg-gradient-to-br from-blue-500 to-blue-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-transform duration-200 disabled:opacity-50"
                     >
                         {isLoading ? 'Signing in...' : 'Sign In'}
                     </button>

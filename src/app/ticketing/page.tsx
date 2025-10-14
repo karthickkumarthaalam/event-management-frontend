@@ -30,7 +30,7 @@ function TicketingContent() {
                 {selectedEvent && (
                     <div className=" flex flex-col md:flex-row min-h-screen bg-transparent ">
                         <aside className="hidden xl:flex flex-col w-60 bg-white/70 backdrop-blur-md border-r border-gray-200 shadow-xl rounded-3xl p-6">
-                            <h2 className=" text-xl font-bold mb-10 bg-gradient-to-r from-indigo-600 to-purple-900 bg-clip-text text-transparent tracking-tight">
+                            <h2 className=" text-xl font-bold mb-10 bg-gradient-to-r from-blue-500 to-blue-700 bg-clip-text text-transparent tracking-tight">
                                 Ticketing Manager
                             </h2>
                             <nav className="flex flex-col gap-2">
@@ -44,13 +44,13 @@ function TicketingContent() {
                                                 onClick={() => setActiveTab(tab.value)}
                                                 className={`group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 relative 
                                             ${isActive
-                                                        ? "bg-blue-100 text-primary shadow-inner"
+                                                        ? "bg-blue-100 text-blue-500 shadow-inner"
                                                         : "text-gray-700 hover:bg-gray-100 hover:text-primary"
                                                     }`}>
                                                 {isActive && (
-                                                    <span className="absolute left-0 top-0 h-full w-1 bg-primary rounded-r-lg"></span>
+                                                    <span className="absolute left-0 top-0 h-full w-1 bg-blue-600 rounded-r-lg"></span>
                                                 )}
-                                                <Icon size={20} className={`transition-colors ${isActive ? "text-primary" : "text-gray-1500 group-hover:text-primary"}`} />
+                                                <Icon size={20} className={`transition-colors ${isActive ? "text-blue-500" : "text-gray-1500 group-hover:text-primary"}`} />
                                                 {tab.name}
                                             </button>
                                         );

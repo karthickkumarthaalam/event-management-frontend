@@ -21,7 +21,10 @@ import {
     ChevronUp,
     XCircle,
     TrendingUp,
-    Package
+    CreditCard,
+    Ticket,
+    Package,
+    Gift
 } from "lucide-react";
 import { Select, SelectItem, SelectTrigger } from "@/components/ui/select";
 import { SelectContent, SelectValue } from "@radix-ui/react-select";
@@ -225,7 +228,7 @@ export default function Reports() {
                 <div className="mb-6">
                     <div className="flex flex-row items-center justify-between gap-4">
                         <div className="text-left">
-                            <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-900 bg-clip-text text-transparent mb-2">Order Reports</h1>
+                            <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-500 to-blue-800 bg-clip-text text-transparent mb-2">Order Reports</h1>
                             <p className="text-slate-600 hidden md:block">
                                 Manage and analyze all orders for <span className="font-semibold text-indigo-600">{selectedEvent?.name}</span>
                             </p>
@@ -309,55 +312,62 @@ export default function Reports() {
                                 {filteredOrders.map((order) => (
                                     <React.Fragment key={order.orderId}>
                                         {/* Main Row */}
-                                        <tr className="hover:bg-indigo-50/30 transition-colors group" onClick={() => toggleOrderExpansion(order.orderId)}>
+                                        <tr
+                                            className="hover:bg-gradient-to-r hover:bg-gray-50 transition-all duration-300 group cursor-pointer"
+                                            onClick={() => toggleOrderExpansion(order.orderId)}
+                                        >
                                             <td className="px-4 py-3">
-                                                <div className="flex flex-row gap-2 items-center">
+                                                <div className="flex flex-row gap-3 items-center">
                                                     {expandedOrders.has(order.orderId) ? (
                                                         <>
-                                                            <ChevronUp className="w-4 h-4" /> <span className="hidden xs:inline">Hide</span>
+                                                            <ChevronUp className="w-4 h-4 text-indigo-600" />
+                                                            <span className="hidden xs:inline text-indigo-600 font-medium">Hide</span>
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <ChevronDown className="w-4 h-4" /> <span className="hidden xs:inline">Details</span>
+                                                            <ChevronDown className="w-4 h-4 text-indigo-600" />
+                                                            <span className="hidden xs:inline text-indigo-600 font-medium">Details</span>
                                                         </>
                                                     )}
                                                     <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3">
                                                         <div className="flex-1">
-                                                            <p className="font-bold text-slate-900 text-sm">#{order.orderId}</p>
-                                                            <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                                                                <Package className="w-3 h-3" /> {order.items.length} ticket(s)
+                                                            <p className="font-bold text-gray-900 text-sm sm:text-base">#{order.orderId}</p>
+                                                            <p className="text-xs sm:text-sm text-slate-500 mt-1 flex items-center gap-1">
+                                                                <Package className="w-3 h-3 text-gray-500" /> {order.items.length} ticket(s)
                                                             </p>
                                                         </div>
+
                                                         {/* Mobile Customer Info */}
-                                                        <div className="sm:hidden mt-2 pt-2 border-t border-slate-100">
-                                                            <p className="font-semibold text-slate-900 text-sm">{order.purchaser.name}</p>
-                                                            <p className="text-xs text-slate-500 truncate">{order.purchaser.email}</p>
+                                                        <div className="sm:hidden mt-2 pt-2 border-t border-indigo-100">
+                                                            <p className="font-semibold text-gray-700 text-sm">{order.purchaser.name}</p>
+                                                            <p className="text-xs text-gray-500 truncate">{order.purchaser.email}</p>
                                                         </div>
                                                     </div>
                                                 </div>
-
                                             </td>
 
                                             {/* Customer Column - Hidden on Mobile */}
                                             <td className="px-4 py-3 hidden sm:table-cell">
                                                 <div>
-                                                    <p className="font-semibold text-slate-900 text-sm">{order.purchaser.name}</p>
-                                                    <p className="text-xs text-slate-500 mt-0.5 truncate max-w-[150px]">{order.purchaser.email}</p>
+                                                    <p className="font-semibold text-gray-700 text-sm">{order.purchaser.name}</p>
+                                                    <p className="text-xs text-gray-500 mt-0.5 truncate max-w-[150px]">{order.purchaser.email}</p>
                                                 </div>
                                             </td>
 
                                             {/* Amount */}
                                             <td className="px-4 py-3">
-                                                <p className="font-bold text-slate-900 whitespace-nowrap text-base sm:text-lg">{formatCurrency(order.orderDetails.totalAmount)}</p>
+                                                <p className="font-bold text-blue-700 whitespace-nowrap text-base sm:text-lg">
+                                                    {formatCurrency(order.orderDetails.totalAmount)}
+                                                </p>
                                             </td>
 
                                             {/* Status - Hidden Mobile */}
-                                            <td className="px-4 py-3 hidden md:table-cell">{getStatusBadge(order.orderDetails.paymentStatus)}</td>
+                                            <td className="px-4 py-3 hidden md:table-cell">{getStatusBadge(order.orderDetails.paymentStatus, 'colorful')}</td>
 
                                             {/* Date - Hidden on Mobile/Tablet */}
                                             <td className="px-4 py-3 hidden lg:table-cell">
-                                                <div className="flex items-center gap-2 text-slate-700">
-                                                    <Calendar className="w-4 h-4 text-slate-400" />
+                                                <div className="flex items-center gap-2 text-gray-700">
+                                                    <Calendar className="w-4 h-4 text-indigo-400" />
                                                     <p className="text-sm font-medium">{formatDate(order.orderDetails.purchasedOn)}</p>
                                                 </div>
                                             </td>
@@ -366,122 +376,157 @@ export default function Reports() {
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center justify-between sm:justify-start gap-2">
                                                     {/* Mobile Status Badge */}
-                                                    <div className="md:hidden">{getStatusBadge(order.orderDetails.paymentStatus)}</div>
+                                                    <div className="md:hidden">{getStatusBadge(order.orderDetails.paymentStatus, 'colorful')}</div>
                                                 </div>
                                             </td>
                                         </tr>
 
+
                                         {/* Expanded Details */}
                                         {expandedOrders.has(order.orderId) && (
                                             <tr>
-                                                <td colSpan={6} className="px-4 py-6 bg-gradient-to-r from-indigo-50 to-indigo-100 border-t border-indigo-100">
-                                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 max-w-7xl mx-auto">
+                                                <td colSpan={6} className="p-0">
+                                                    <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 border-t border-slate-200">
+                                                        <div className="max-w-7xl mx-auto px-6 py-6">
 
-                                                        {/* Customer Info Card */}
-                                                        <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-all duration-300">
-                                                            <div className="flex items-start gap-3">
-                                                                <div className="p-2 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex-shrink-0 shadow-sm">
-                                                                    <Users className="w-5 h-5 text-white" />
-                                                                </div>
-                                                                <div className="flex-1 min-w-0">
-                                                                    <h3 className="font-bold text-indigo-600 text-lg mb-2">Customer Information</h3>
-                                                                    <div className="space-y-1 text-sm text-gray-700 grid grid-cols-1 md:grid-cols-2">
-                                                                        <p><span className="font-semibold">Name:</span> {order.purchaser.name}</p>
-                                                                        <p><span className="font-semibold">Email:</span> {order.purchaser.email}</p>
-                                                                        <p><span className="font-semibold">Mobile:</span> {order.purchaser.mobile}</p>
-                                                                        <p><span className="font-semibold">line1:</span> {order.purchaser.line1}</p>
-                                                                        <p><span className="font-semibold">line2:</span> {order.purchaser.line2}</p>
-                                                                        <p><span className="font-semibold">city:</span> {order.purchaser.city}</p>
-                                                                        <p><span className="font-semibold">State:</span> {order.purchaser.state}</p>
-                                                                        <p><span className="font-semibold">Country:</span> {order.purchaser.country}</p>
-                                                                        <p><span className="font-semibold">Postal Code:</span> {order.purchaser.postal_code}</p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
 
-                                                        {/* Payment Info Card */}
-                                                        <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-all duration-300">
-                                                            <div className="flex items-start gap-3">
-                                                                <div className="p-2 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex-shrink-0 shadow-sm">
-                                                                    <FileText className="w-5 h-5 text-white" />
-                                                                </div>
-                                                                <div className="flex-1 min-w-0">
-                                                                    <h3 className="font-bold text-purple-600 text-lg mb-2">Payment Details</h3>
-                                                                    <div className="space-y-1 text-sm text-gray-700">
-                                                                        <p><span className="font-semibold">Gateway:</span> {order.orderDetails.paymentGateway || 'N/A'}</p>
-                                                                        <p><span className="font-semibold">Txn ID:</span> {order.orderDetails.gatewayTransactionId || 'N/A'}</p>
-                                                                        <p><span className="font-semibold">Paid On:</span> {formatDate(order.orderDetails.updatedAt)}</p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
+                                                            {/* Grid Layout */}
+                                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-                                                        {/* Tickets Section */}
-                                                        <div className="lg:col-span-2 bg-white p-4 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-all duration-300">
-                                                            <div className="flex items-center gap-3 mb-4">
-                                                                <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-sm">
-                                                                    <Package className="w-5 h-5 text-white" />
-                                                                </div>
-                                                                <div>
-                                                                    <h3 className="font-bold text-blue-600 text-lg">Tickets</h3>
-                                                                    <p className="text-sm text-slate-500">{order.items.length} ticket(s) purchased</p>
-                                                                </div>
-                                                            </div>
-                                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                                                {order.items.map((item) => (
-                                                                    <div key={item.ticketId} className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4 hover:shadow-md transition-all duration-300">
-                                                                        <div className="flex justify-between items-center mb-2">
-                                                                            <p className="font-semibold text-blue-900">#{item.ticketId} {item.ticketClass}</p>
-                                                                            <p className="font-bold text-blue-900">{formatCurrency(item.totalAmount)}</p>
-                                                                        </div>
-                                                                        <div className="flex flex-wrap gap-2 text-xs">
-                                                                            <span className="bg-blue-200 text-blue-900 px-2 py-1 rounded-full font-medium">Qty: {item.quantity}</span>
-                                                                            <span className="bg-blue-200 text-blue-900 px-2 py-1 rounded-full font-medium">Each: {formatCurrency(item.price)}</span>
-                                                                            {item.taxes.length > 0 && (
-                                                                                <span className="bg-blue-200 text-blue-900 px-2 py-1 rounded-full font-medium">
-                                                                                    Tax: {formatCurrency(item.taxes.reduce((sum, tax) => sum + parseFloat(tax.taxAmount), 0))}
-                                                                                </span>
-                                                                            )}
-                                                                        </div>
+                                                                {/* Customer Info */}
+                                                                <div className="bg-white  rounded-xl shadow-md hover:shadow-lg transition-all duration-300">
+                                                                    <div className="border-b border-slate-100 px-4 py-3 flex items-center gap-2 bg-gradient-to-r from-indigo-100 to-indigo-50">
+                                                                        <Users className="w-5 h-5 text-indigo-600" />
+                                                                        <h4 className="font-semibold text-slate-900">Customer Information</h4>
                                                                     </div>
-                                                                ))}
-                                                            </div>
-                                                        </div>
-
-                                                        {/* Add-ons Section */}
-                                                        {order.addons.length > 0 && (
-                                                            <div className="lg:col-span-2 bg-white p-4 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-all duration-300">
-                                                                <div className="flex items-center gap-3 mb-4">
-                                                                    <div className="p-2 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-sm">
-                                                                        <TrendingUp className="w-5 h-5 text-white" />
-                                                                    </div>
-                                                                    <div>
-                                                                        <h3 className="font-bold text-emerald-600 text-lg">Add-ons</h3>
-                                                                        <p className="text-sm text-slate-500">{order.addons.length} add-on(s) purchased</p>
-                                                                    </div>
-                                                                </div>
-                                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                                                    {order.addons.map((addon) => (
-                                                                        <div key={addon.addonRefId} className="bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200 rounded-lg p-4 hover:shadow-md transition-all duration-300">
-                                                                            <div className="flex justify-between items-center mb-2">
-                                                                                <p className="font-semibold text-emerald-900">{addon.addonName}</p>
-                                                                                <p className="font-bold text-emerald-900">{formatCurrency(addon.totalAmount)}</p>
+                                                                    <div className="p-4 text-sm text-slate-700">
+                                                                        <dl className="space-y-3">
+                                                                            <div className="grid grid-cols-2 gap-4">
+                                                                                <div>
+                                                                                    <dt className="text-xs font-medium text-slate-500 uppercase">Name</dt>
+                                                                                    <dd className="font-semibold text-indigo-700">{order.purchaser.name}</dd>
+                                                                                </div>
+                                                                                <div>
+                                                                                    <dt className="text-xs font-medium text-slate-500 uppercase">Email</dt>
+                                                                                    <dd className="text-slate-800">{order.purchaser.email}</dd>
+                                                                                </div>
                                                                             </div>
-                                                                            <div className="flex flex-wrap gap-2 text-xs">
-                                                                                <span className="bg-emerald-200 text-emerald-800 px-2 py-1 rounded-full font-medium">Qty: {addon.quantity}</span>
-                                                                                <span className="bg-emerald-200 text-emerald-800 px-2 py-1 rounded-full font-medium">Each: {formatCurrency(addon.price)}</span>
+                                                                            <div className="grid grid-cols-2 gap-4">
+                                                                                <div>
+                                                                                    <dt className="text-xs font-medium text-slate-500 uppercase">Mobile</dt>
+                                                                                    <dd className="text-slate-800">{order.purchaser.mobile}</dd>
+                                                                                </div>
+                                                                                <div>
+                                                                                    <dt className="text-xs font-medium text-slate-500 uppercase">Country</dt>
+                                                                                    <dd className="text-slate-800">{order.purchaser.country}</dd>
+                                                                                </div>
                                                                             </div>
-                                                                        </div>
-                                                                    ))}
+                                                                            <div>
+                                                                                <dt className="text-xs font-medium text-slate-500 uppercase">Address</dt>
+                                                                                <dd className="mt-1 leading-5 text-slate-800">
+                                                                                    {order.purchaser.line1}<br />
+                                                                                    {order.purchaser.line2 && <>{order.purchaser.line2}<br /></>}
+                                                                                    {order.purchaser.city}, {order.purchaser.state} {order.purchaser.postal_code}
+                                                                                </dd>
+                                                                            </div>
+                                                                        </dl>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                        )}
 
+                                                                {/* Payment Info */}
+                                                                <div className="bg-white  rounded-xl shadow-md hover:shadow-lg transition-all duration-300">
+                                                                    <div className="border-b border-slate-100 px-4 py-3 flex items-center gap-2 bg-gradient-to-r from-purple-100 to-purple-50">
+                                                                        <CreditCard className="w-5 h-5 text-purple-600" />
+                                                                        <h4 className="font-semibold text-slate-900">Payment Details</h4>
+                                                                    </div>
+                                                                    <div className="p-4 text-sm text-slate-700 space-y-3">
+                                                                        <p><span className="font-medium text-slate-600">Gateway:</span> <span className="text-purple-800">{order.orderDetails.paymentGateway || 'N/A'}</span></p>
+                                                                        <p><span className="font-medium text-slate-600">Transaction ID:</span> <span className="font-mono text-purple-700">{order.orderDetails.gatewayTransactionId || 'N/A'}</span></p>
+                                                                        <p><span className="font-medium text-slate-600">Payment Date:</span> <span className="text-slate-800">{formatDate(order.orderDetails.updatedAt)}</span></p>
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Tickets */}
+                                                                <div className="lg:col-span-2 bg-white  rounded-xl shadow-md hover:shadow-lg transition-all duration-300">
+                                                                    <div className="border-b border-slate-100 px-4 py-3 flex items-center justify-between bg-gradient-to-r from-blue-100 to-blue-50">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <Ticket className="w-5 h-5 text-blue-600" />
+                                                                            <h4 className="font-semibold text-slate-900">Tickets</h4>
+                                                                        </div>
+                                                                        <span className="text-xs px-3 py-1 rounded-full bg-blue-100 text-blue-700 font-medium">
+                                                                            {order.items.length} ticket(s)
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="p-4">
+                                                                        <table className="w-full text-sm text-left border-collapse">
+                                                                            <thead>
+                                                                                <tr className="text-slate-500 border-b border-slate-100">
+                                                                                    <th className="py-2">Ticket ID</th>
+                                                                                    <th>Class</th>
+                                                                                    <th>Status</th>
+                                                                                    <th className="text-right">Amount</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                                {order.items.map((item) => (
+                                                                                    <tr key={item.ticketId} className="border-b border-slate-100 hover:bg-blue-50 transition">
+                                                                                        <td className="py-2 font-medium text-blue-900">#{item.ticketId}</td>
+                                                                                        <td className="text-slate-800">{item.ticketClass}</td>
+                                                                                        <td>
+                                                                                            <span className="text-green-800 bg-green-100 px-2 py-0.5 rounded-full text-xs font-medium">Active</span>
+                                                                                        </td>
+                                                                                        <td className="text-right font-semibold text-blue-900">{formatCurrency(item.totalAmount)}</td>
+                                                                                    </tr>
+                                                                                ))}
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Add-ons */}
+                                                                {order.addons.length > 0 && (
+                                                                    <div className="lg:col-span-2 bg-white  rounded-xl shadow-md hover:shadow-lg transition-all duration-300">
+                                                                        <div className="border-b border-slate-100 px-4 py-3 flex items-center justify-between bg-gradient-to-r from-pink-100 to-pink-50">
+                                                                            <div className="flex items-center gap-2">
+                                                                                <Gift className="w-5 h-5 text-pink-600" />
+                                                                                <h4 className="font-semibold text-slate-900">Add-ons</h4>
+                                                                            </div>
+                                                                            <span className="text-xs px-3 py-1 rounded-full bg-pink-100 text-pink-700 font-medium">
+                                                                                {order.addons.length} add-on(s)
+                                                                            </span>
+                                                                        </div>
+                                                                        <div className="p-4">
+                                                                            <table className="w-full text-sm text-left border-collapse">
+                                                                                <thead>
+                                                                                    <tr className="text-slate-500 border-b border-slate-100">
+                                                                                        <th className="py-2">Name</th>
+                                                                                        <th>Qty</th>
+                                                                                        <th>Ref ID</th>
+                                                                                        <th className="text-right">Amount</th>
+                                                                                    </tr>
+                                                                                </thead>
+                                                                                <tbody>
+                                                                                    {order.addons.map((addon) => (
+                                                                                        <tr key={addon.addonRefId} className="border-b border-slate-100 hover:bg-pink-50 transition">
+                                                                                            <td className="py-2 font-medium text-pink-900">{addon.addonName}</td>
+                                                                                            <td>{addon.quantity}</td>
+                                                                                            <td className="font-mono text-slate-600">#{addon.addonRefId}</td>
+                                                                                            <td className="text-right font-semibold text-pink-900">{formatCurrency(addon.totalAmount)}</td>
+                                                                                        </tr>
+                                                                                    ))}
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+
+                                                        </div>
                                                     </div>
                                                 </td>
                                             </tr>
                                         )}
+
                                     </React.Fragment>
                                 ))}
                             </tbody>

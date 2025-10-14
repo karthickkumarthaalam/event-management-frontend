@@ -222,7 +222,7 @@ export default function TaxModal({ open, onClose, tax, eventId, onSaved }: TaxMo
                     <Button
                         onClick={handleSave}
                         disabled={loading}
-                        className="bg-gradient-to-r from-[hsl(var(--primary))] to-blue-500 text-white"
+                        className="bg-gradient-to-r from-blue-500 to-blue-700 text-white"
                     >
                         {loading ? "Saving..." : tax ? "Update" : "Create"}
                     </Button>

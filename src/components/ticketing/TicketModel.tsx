@@ -143,6 +143,8 @@ export default function TicketModal({ open, onClose, ticket, eventId, onSaved }:
         try {
             const payload = {
                 ...form,
+                early_bird_start: form.early_bird_start ? `${form.early_bird_start} 00:00:00` : null,
+                early_bird_end: form.early_bird_end ? `${form.early_bird_end} 23:59:59` : null,
                 taxIds: selectedTaxIds,
             };
 
@@ -249,13 +251,16 @@ export default function TicketModal({ open, onClose, ticket, eventId, onSaved }:
                                     label="Early Bird Start"
                                     type="date"
                                     value={form.early_bird_start}
-                                    onChange={(e) => setForm({ ...form, early_bird_start: `${e.target.value} 00:00:00` })}
+                                    onChange={(e) => setForm({ ...form, early_bird_start: e.target.value })}
+                                    error={fieldErrors.early_bird_start}
                                 />
+
                                 <InputField
                                     label="Early Bird End"
                                     type="date"
                                     value={form.early_bird_end}
-                                    onChange={(e) => setForm({ ...form, early_bird_end: `${e.target.value} 23:59:59` })}
+                                    onChange={(e) => setForm({ ...form, early_bird_end: e.target.value })}
+                                    error={fieldErrors.early_bird_end}
                                 />
                             </div>
                         )}
@@ -280,7 +285,7 @@ export default function TicketModal({ open, onClose, ticket, eventId, onSaved }:
                 {/* Footer */}
                 <div className="p-4 border-t bg-gray-50 flex justify-end gap-3 sticky bottom-0">
                     <Button variant="outline" onClick={onClose}>Cancel</Button>
-                    <Button onClick={handleSave} disabled={loading} className="bg-gradient-to-r from-[hsl(var(--primary))] to-blue-500 text-white">
+                    <Button onClick={handleSave} disabled={loading} className="bg-gradient-to-r from-blue-500 to-blue-700 text-white">
                         {loading ? "Saving..." : ticket ? "Update" : "Create"}
                     </Button>
                 </div>

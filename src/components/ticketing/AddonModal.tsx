@@ -162,7 +162,7 @@ export default function AddonModal({ open, onClose, addon, eventId, onSaved }: A
                     <Button variant="outline" onClick={onClose}>
                         Cancel
                     </Button>
-                    <Button onClick={handleSave} disabled={loading} className="bg-gradient-to-r from-[hsl(var(--primary))] to-blue-500 text-white">
+                    <Button onClick={handleSave} disabled={loading} className="bg-gradient-to-r from-blue-500 to-blue-700 text-white">
                         {loading ? "Saving..." : addon ? "Update" : "Create"}
                     </Button>
                 </div>

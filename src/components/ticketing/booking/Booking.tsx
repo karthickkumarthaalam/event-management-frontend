@@ -67,6 +67,7 @@ type Ticket = {
         mode: "exclusive" | "inclusive";
         type: "percentage" | "fixed";
         value: string;
+        status: boolean;
         applicable_on: "ticket" | "addon";
     }[];
     event: {
@@ -273,8 +274,8 @@ export default function Booking() {
                         ? parseFloat(ticket.early_bird_discount_value)
                         : parseFloat(ticket.price);
                 const basePriceTotal = basePrice * item.quantity;
-
-                const applicableTaxes = ticket.taxes.filter((t) => t.mode === "exclusive");
+                const taxes = ticket.taxes.filter(t => t.status === true);
+                const applicableTaxes = taxes.filter((t) => t.mode === "exclusive");
                 const taxDetails = applicableTaxes.map((tax) => {
                     const taxable = basePrice * item.quantity;
                     const amount =

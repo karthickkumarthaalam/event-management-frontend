@@ -98,7 +98,7 @@ const OrdersDashboard = () => {
                 {/* Header */}
                 <div className="flex  justify-between items-center gap-2">
                     <div className="flex-1">
-                        <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-900 bg-clip-text text-transparent [-webkit-text-fill-color:transparent] mb-2">
+                        <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-500 to-blue-700 bg-clip-text text-transparent [-webkit-text-fill-color:transparent] mb-2">
                             {selectedEvent?.name}
                         </h1>
                         <p className="text-slate-500 max-w-2xl text-sm hidden md:block">
@@ -107,7 +107,7 @@ const OrdersDashboard = () => {
                     </div>
 
                     <button
-                        className="px-3 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg shadow-lg text-sm whitespace-nowrap flex gap-2 items-center"
+                        className="px-3 py-2 bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white rounded-lg shadow-lg text-sm whitespace-nowrap flex gap-2 items-center"
                         onClick={() => setSelectedEvent(null)}
                     >
                         <Calendar size={16} />
