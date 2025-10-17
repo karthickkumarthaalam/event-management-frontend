@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { DollarSign, Ticket, TrendingUp, Package, Calendar } from "lucide-react";
+import { DollarSign, Ticket, TrendingUp, Package, Calendar, Activity, PartyPopperIcon } from "lucide-react";
 import {
     BarChart,
     Bar,
@@ -97,10 +97,16 @@ const OrdersDashboard = () => {
             <div className="space-y-8">
                 {/* Header */}
                 <div className="flex  justify-between items-center gap-2">
-                    <div className="flex-1">
-                        <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-500 to-blue-700 bg-clip-text text-transparent [-webkit-text-fill-color:transparent] mb-2">
-                            {selectedEvent?.name}
-                        </h1>
+                    <div className="flex-1 ">
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="p-2 bg-white rounded-2xl shadow-lg border border-slate-100">
+                                <PartyPopperIcon className="h-6 w-6 text-purple-600" />
+                            </div>
+                            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-blue-700 bg-clip-text text-transparent">
+                                {selectedEvent?.name}
+                            </h1>
+                        </div>
+
                         <p className="text-slate-500 max-w-2xl text-sm hidden md:block">
                             Comprehensive overview of ticket sales, revenue, and performance metrics
                         </p>

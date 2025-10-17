@@ -3,10 +3,10 @@ import { useTicketing } from "@/contexts/TicketingContextT";
 import React, { useEffect, useMemo, useState } from "react";
 import debounce from "lodash.debounce";
 import { fetchAddons, fetchTicketsByEvent } from "@/lib/ticketing";
-import { validatePromoCode, createOrder } from "@/lib/order";
+import { validatePromoCode, createOrder, offlineOrder } from "@/lib/order";
 import { toast } from "react-toastify";
 import { EventBanner } from "../EventBanner";
-import { Search, Users, ShoppingCart, Loader, Minus, Plus, Tag, Ticket, User, CreditCard } from "lucide-react";
+import { Search, Users, ShoppingCart, Loader, Minus, Plus, Tag, Ticket, User, CreditCard, Check } from "lucide-react";
 
 // Types
 type OrderAddonDto = {
@@ -111,6 +111,10 @@ export default function Booking() {
     const [promoError, setPromoError] = useState<string | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [orderAddons, setOrderAddons] = useState<OrderAddonDto[]>([]);
+    const [offilnePaymentMode, setOfflinePaymentMode] = useState("");
+    const [offlineReference, setOfflineReference] = useState("");
+    const [isOfflineProcessing, setIsOfflineProcessing] = useState(false);
+
 
     const [step, setStep] = useState<Step>("cart");
     const { selectedEvent } = useTicketing();
@@ -335,6 +339,34 @@ export default function Booking() {
         };
     };
 
+    const handleOfflinePayments = async () => {
+
+        if (!offilnePaymentMode) return;
+
+        setIsOfflineProcessing(true);
+        try {
+            const orderDto = {
+                ...buildOrderDto(),
+                amount: totalAmount,
+                paymentMode: offilnePaymentMode
+            };
+            await offlineOrder(orderDto);
+
+            setCart([]);
+            setOrderAddons([]);
+            setPromoCode("");
+            setPromoError("");
+            setDiscountAmount(0);
+            setPurchaser(initiatePurchaser);
+            setStep("cart");
+            toast.success("Offline Payment recorded successfully");
+        } catch (error: any) {
+            toast.error("Failed to create Order, Please try again.");
+        } finally {
+            setIsOfflineProcessing(false);
+        }
+    };
+
     const handleCheckout = async () => {
         setIsProcessing(true);
         try {
@@ -466,7 +498,7 @@ export default function Booking() {
                                                             {ticket.event.currency_symbol} {displayPrice.toFixed(2)}
                                                             {earlyBirdActive && (
                                                                 <span className="ml-3 text-sm text-red-700 line-through">
-                                                                    {ticket.price}
+                                                                    {ticket.event.currency_symbol} {ticket.price}
                                                                 </span>
                                                             )}
                                                         </div>
@@ -1083,6 +1115,57 @@ export default function Booking() {
                                             )}
                                         </button>
 
+                                        <div className="relative text-center tetx-gray-500 text-sm my-2">
+                                            <span className="bg-white px-2 relative z-10">OR</span>
+                                            <div className="absolute top-1/2 left-0 right-0 border-t border-gray-300"></div>
+                                        </div>
+
+                                        <div className="bg-gray-50 rounded-lg p-4 space-y-3 border border-gray-200">
+                                            <h4 className="text-sm font-semibold text-gray-700">Offline Payments</h4>
+
+                                            <select className="w-full border border-gray-300 rounded-md p-2 text-sm"
+                                                value={offilnePaymentMode}
+                                                onChange={(e) => setOfflinePaymentMode(e.target.value)}>
+                                                <option value="">Select Payment Method</option>
+                                                <option value="cash">Cash</option>
+                                                <option value="card">Card</option>
+                                                <option value="bank_transfer">Bank Transfer</option>
+                                                <option value="upi">UPI</option>
+                                            </select>
+
+                                            {
+                                                offilnePaymentMode && (
+                                                    <input
+                                                        type="text"
+                                                        className="w-full border border-gray-300 rounded-md p-2 text-sm"
+                                                        placeholder="Reference / Transaction ID (optional)"
+                                                        value={offlineReference}
+                                                        onChange={(e) => setOfflineReference(e.target.value)}
+                                                    />
+                                                )
+                                            }
+
+                                            <button
+                                                onClick={handleOfflinePayments}
+                                                disabled={!offilnePaymentMode || isOfflineProcessing}
+                                                className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                {
+                                                    isOfflineProcessing ? (
+                                                        <>
+                                                            <Loader className="w-5 h-5 animate-spin" />
+                                                            Processing...
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Check className="w-5 h-5" />
+                                                            Confirm Offline Payment
+                                                        </>
+                                                    )
+                                                }
+                                            </button>
+                                        </div>
+
                                         <button
                                             onClick={() => setStep("purchaser")}
                                             className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-4 rounded-lg font-medium transition-all"
@@ -1093,7 +1176,7 @@ export default function Booking() {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div >
                 );
         }
     };

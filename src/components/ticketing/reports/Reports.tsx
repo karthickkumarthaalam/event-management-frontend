@@ -1,18 +1,15 @@
 'use client';
 
 import { useTicketing } from "@/contexts/TicketingContextT";
-import { fetchOrderReport } from "@/lib/order";
-import React, { useEffect, useState } from "react";
+import { fetchOrderReport, refundOrder, sendOrderEmail } from "@/lib/order";
+import React, { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { Input } from "@/components/ui/input";
 import {
-    Download,
     FileText,
     Users,
     Calendar,
     Mail,
-    Phone,
-    MapPin,
     CheckCircle,
     Clock,
     Search,
@@ -20,62 +17,24 @@ import {
     ChevronDown,
     ChevronUp,
     XCircle,
-    TrendingUp,
     CreditCard,
     Ticket,
     Package,
-    Gift
+    Gift,
+    EllipsisVertical,
+    X
 } from "lucide-react";
-import { Select, SelectItem, SelectTrigger } from "@/components/ui/select";
-import { SelectContent, SelectValue } from "@radix-ui/react-select";
-
-interface Order {
-    orderId: string;
-    purchaser: {
-        name: string;
-        email: string;
-        mobile: string;
-        line1: string;
-        line2: string;
-        city: string;
-        state: string;
-        country: string;
-        postal_code: string;
-    };
-    orderDetails: {
-        totalAmount: string;
-        discountedAmount: string;
-        paymentStatus: string;
-        paymentMode: string | null;
-        paymentGateway: string | null;
-        gatewayTransactionId: string | null;
-        purchasedOn: string;
-        updatedAt: string;
-    };
-    items: Array<{
-        ticketId: string;
-        ticketRefId: string;
-        ticketClass: string;
-        quantity: number;
-        price: string;
-        totalAmount: string;
-        status: string;
-        taxes: Array<{
-            taxRefId: string;
-            taxName: string;
-            taxRate: string;
-            taxAmount: string;
-        }>;
-        addons: any[];
-    }>;
-    addons: Array<{
-        addonRefId: string;
-        addonName: string;
-        price: string;
-        quantity: number;
-        totalAmount: string;
-    }>;
-}
+import {
+    Select,
+    SelectTrigger,
+    SelectContent,
+    SelectItem,
+    SelectValue,
+} from "@/components/ui/select";
+import RefundModal from "./RefundModal";
+import { Order } from "@/types/order";
+import ViewTicketModal from "./ViewTicketModal";
+import ConfirmDialog from "@/components/common/confirmDialog";
 
 interface ReportData {
     data: Order[];
@@ -93,7 +52,15 @@ export default function Reports() {
     const [page, setPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState<string>("all");
-    const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
+    const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+    const [activeActionOrder, setActiveActionOrder] = useState<string | null>(null);
+    const [showRefundModal, setShowRefundModal] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+    const [sendingEmailOrder, setSendingEmailOrder] = useState<string | null>(null);
+    const [viewTicketsOrder, setViewTicketsOrder] = useState<Order | null>(null);
+    const [showTicketsModal, setShowTicketsModal] = useState(false);
+    const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+    const [orderToSendEmail, setOrderToSendEmail] = useState<Order | null>(null);
 
     const { selectedEvent } = useTicketing();
 
@@ -102,7 +69,7 @@ export default function Reports() {
 
         setLoading(true);
         try {
-            const data = await fetchOrderReport(selectedEvent.id, page, 20);
+            const data = await fetchOrderReport(selectedEvent.id, page, 50, searchTerm, statusFilter);
             setReport(data);
         } catch (err: any) {
             console.error(err);
@@ -112,23 +79,49 @@ export default function Reports() {
         }
     };
 
+    const sendEmail = async (order: Order) => {
+        setSendingEmailOrder(order.orderId);
+        try {
+            const email = order.purchaser.email;
+            const name = order.purchaser.name;
+            const eventName = selectedEvent?.name;
+
+            const data = await sendOrderEmail(order.id, order.orderId, name, email, eventName);
+
+            if (data.success) {
+                toast.success('Ticket email sent successfully!');
+                setActiveActionOrder(null);
+            } else {
+                toast.error(data.message || 'Failed to send email');
+            }
+
+        } catch (error) {
+            toast.error('Error sending email');
+        } finally {
+            setSendingEmailOrder(null);
+        }
+    };
+
     useEffect(() => {
+        const timeout = setTimeout(() => {
+            if (selectedEvent?.id) fetchReport(1);
+        }, 500);
+
+        return () => clearTimeout(timeout);
+    }, [selectedEvent?.id, page, searchTerm, statusFilter]);
+
+    const refereshReport = useCallback(() => {
         fetchReport(page);
-    }, [selectedEvent, page]);
+    }, [page, fetchReport]);
 
     const toggleOrderExpansion = (orderId: string) => {
-        const newExpanded = new Set(expandedOrders);
-        if (newExpanded.has(orderId)) {
-            newExpanded.delete(orderId);
-        } else {
-            newExpanded.add(orderId);
-        }
-        setExpandedOrders(newExpanded);
+        setExpandedOrder(prev => (prev === orderId ? null : orderId));
     };
 
 
-    const formatCurrency = (amount: string) => {
-        return `${selectedEvent.currency_symbol} ${parseFloat(amount).toFixed(2)}`;
+    const formatCurrency = (amount: string | number) => {
+        const parsed = typeof amount === "number" ? amount : parseFloat(amount);
+        return `${selectedEvent?.currency_symbol || ""} ${parsed.toFixed(2)}`;
     };
 
     const formatDate = (dateString: string) => {
@@ -145,7 +138,8 @@ export default function Reports() {
         const statusConfig = {
             paid: { color: "bg-emerald-50 text-emerald-700 border border-emerald-200", icon: CheckCircle },
             pending: { color: "bg-amber-50 text-amber-700 border border-amber-200", icon: Clock },
-            failed: { color: "bg-rose-50 text-rose-700 border border-rose-200", icon: XCircle }
+            failed: { color: "bg-rose-50 text-rose-700 border border-rose-200", icon: XCircle },
+            refunded: { color: "bg-red-50 text-red-700 border border-red-200", icon: CreditCard },
         };
 
         const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
@@ -159,55 +153,12 @@ export default function Reports() {
         );
     };
 
-    const filteredOrders = report?.data?.filter(order => {
-        const matchesSearch =
-            order.purchaser.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            order.purchaser.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            order.orderId.includes(searchTerm);
+    const filteredOrders = report?.data || [];
 
-        const matchesStatus = statusFilter === "all" || order.orderDetails.paymentStatus === statusFilter;
-
-        return matchesSearch && matchesStatus;
-    }) || [];
-
-    const exportToCSV = () => {
-        if (!filteredOrders.length) return;
-
-        const headers = [
-            'Order ID',
-            'Customer Name',
-            'Email',
-            'Mobile',
-            'Total Amount',
-            'Payment Status',
-            'Purchase Date',
-            'Ticket Count',
-            'Addons Count'
-        ];
-
-        const csvData = filteredOrders.map(order => [
-            order.orderId,
-            order.purchaser.name,
-            order.purchaser.email,
-            order.purchaser.mobile,
-            order.orderDetails.totalAmount,
-            order.orderDetails.paymentStatus,
-            order.orderDetails.purchasedOn,
-            order.items.length,
-            order.addons.length
-        ]);
-
-        const csvContent = [headers, ...csvData]
-            .map(row => row.map(field => `"${field}"`).join(','))
-            .join('\n');
-
-        const blob = new Blob([csvContent], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `orders-report-${new Date().toISOString().split('T')[0]}.csv`;
-        link.click();
-        window.URL.revokeObjectURL(url);
+    const openRefundModal = (order: Order) => {
+        setSelectedOrder(order);
+        setShowRefundModal(true);
+        setActiveActionOrder(null);
     };
 
     if (loading) {
@@ -233,14 +184,6 @@ export default function Reports() {
                                 Manage and analyze all orders for <span className="font-semibold text-indigo-600">{selectedEvent?.name}</span>
                             </p>
                         </div>
-                        {/* <button
-                            onClick={exportToCSV}
-                            disabled={!filteredOrders.length}
-                            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-indigo-200 hover:shadow-xl hover:scale-105 font-semibold text-sm"
-                        >
-                            <Download className="w-5 h-5" />
-                            Export CSV
-                        </button> */}
                     </div>
                 </div>
 
@@ -252,7 +195,7 @@ export default function Reports() {
                             <div className="relative">
                                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400" size={20} />
                                 <Input
-                                    placeholder="Search events by name, location, or status..."
+                                    placeholder="Search orders by name, email, or order ID..."
                                     className="pl-12 pr-4 py-3 bg-slate-50 border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -285,7 +228,7 @@ export default function Reports() {
 
                 <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
                     <div className="overflow-x-auto">
-                        <table className="w-full">
+                        <table className="w-full overflow-visible">
                             <thead className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
                                 <tr>
                                     <th className="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
@@ -318,7 +261,7 @@ export default function Reports() {
                                         >
                                             <td className="px-4 py-3">
                                                 <div className="flex flex-row gap-3 items-center">
-                                                    {expandedOrders.has(order.orderId) ? (
+                                                    {expandedOrder === order.orderId ? (
                                                         <>
                                                             <ChevronUp className="w-4 h-4 text-indigo-600" />
                                                             <span className="hidden xs:inline text-indigo-600 font-medium">Hide</span>
@@ -362,7 +305,7 @@ export default function Reports() {
                                             </td>
 
                                             {/* Status - Hidden Mobile */}
-                                            <td className="px-4 py-3 hidden md:table-cell">{getStatusBadge(order.orderDetails.paymentStatus, 'colorful')}</td>
+                                            <td className="px-4 py-3 hidden md:table-cell">{getStatusBadge(order.orderDetails.paymentStatus)}</td>
 
                                             {/* Date - Hidden on Mobile/Tablet */}
                                             <td className="px-4 py-3 hidden lg:table-cell">
@@ -376,17 +319,106 @@ export default function Reports() {
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center justify-between sm:justify-start gap-2">
                                                     {/* Mobile Status Badge */}
-                                                    <div className="md:hidden">{getStatusBadge(order.orderDetails.paymentStatus, 'colorful')}</div>
+                                                    <div className="md:hidden">{getStatusBadge(order.orderDetails.paymentStatus)}</div>
+
+                                                    <div className="relative">
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setActiveActionOrder(order.orderId === activeActionOrder ? null : order.orderId);
+                                                            }}
+                                                            className="p-2 rounded-lg hover:bg-slate-100 transition"
+                                                        >
+                                                            <EllipsisVertical className="text-slate-600 w-5 h-5" />
+                                                        </button>
+
+                                                        {activeActionOrder === order.orderId && (
+                                                            <div className="absolute -right-10 mt-2 w-48 bg-white/95 backdrop-blur-md border border-slate-200 rounded-2xl shadow-xl z-[100] animate-slide-up">
+                                                                <div className="flex flex-col py-2">
+                                                                    {/* Refund Action */}
+                                                                    {
+                                                                        order.orderDetails.paymentStatus === "paid" && order.orderDetails.paymentGateway !== "manual" && (
+                                                                            <button
+                                                                                onClick={() => openRefundModal(order)}
+                                                                                className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-rose-50 hover:text-rose-600 transition-all rounded-md"
+                                                                            >
+                                                                                <div className="p-1.5 rounded-md bg-rose-100 group-hover:bg-rose-200">
+                                                                                    <CreditCard className="w-4 h-4 text-rose-600" />
+                                                                                </div>
+                                                                                Refund
+                                                                            </button>
+                                                                        )
+                                                                    }
+                                                                    {order.orderDetails.paymentStatus === "paid" && (
+                                                                        <>
+                                                                            <button
+                                                                                onClick={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    setOrderToSendEmail(order);
+                                                                                    setConfirmDialogOpen(true);
+                                                                                    setActiveActionOrder(null);
+                                                                                }}
+                                                                                className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition-all rounded-md"
+                                                                            >
+                                                                                <div className="p-1.5 rounded-md bg-blue-100 group-hover:bg-blue-200">
+                                                                                    {sendingEmailOrder === order.orderId ? (
+                                                                                        <svg className="animate-spin w-4 h-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                                                                        </svg>
+                                                                                    ) : (
+                                                                                        <Mail className="w-4 h-4 text-blue-600" />
+                                                                                    )}
+                                                                                </div>
+                                                                                {sendingEmailOrder === order.orderId ? 'Sending...' : 'Send Tickets'}
+                                                                            </button>
+
+
+                                                                            <button
+                                                                                onClick={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    setViewTicketsOrder(order);
+                                                                                    setShowTicketsModal(true);
+                                                                                    setActiveActionOrder(null);
+                                                                                }}
+                                                                                className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition-all rounded-md"
+                                                                            >
+                                                                                <div className="p-1.5 rounded-md bg-indigo-100 group-hover:bg-indigo-200">
+                                                                                    <Ticket className="w-4 h-4 text-indigo-600" />
+                                                                                </div>
+                                                                                View Tickets
+                                                                            </button>
+                                                                        </>
+                                                                    )
+
+
+                                                                    }
+
+                                                                    {/* Cancel */}
+                                                                    <button
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation(); // <-- prevent row click
+                                                                            setActiveActionOrder(null);
+                                                                        }}
+                                                                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-500 hover:bg-slate-50 hover:text-slate-700 transition-all rounded-md"
+                                                                    >
+                                                                        <X className="w-4 h-4 text-slate-500" />
+                                                                        Close
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </td>
                                         </tr>
 
 
                                         {/* Expanded Details */}
-                                        {expandedOrders.has(order.orderId) && (
+                                        {expandedOrder === order.orderId && (
                                             <tr>
                                                 <td colSpan={6} className="p-0">
-                                                    <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 border-t border-slate-200">
+                                                    <div className="bg-gray-100 border-t border-slate-200">
                                                         <div className="max-w-7xl mx-auto px-6 py-6">
 
 
@@ -441,6 +473,8 @@ export default function Reports() {
                                                                     </div>
                                                                     <div className="p-4 text-sm text-slate-700 space-y-3">
                                                                         <p><span className="font-medium text-slate-600">Gateway:</span> <span className="text-purple-800">{order.orderDetails.paymentGateway || 'N/A'}</span></p>
+                                                                        <p><span className="font-medium text-slate-600">Payment Mode :</span> <span className="text-purple-800">{order.orderDetails.paymentMode || 'N/A'}</span></p>
+
                                                                         <p><span className="font-medium text-slate-600">Transaction ID:</span> <span className="font-mono text-purple-700">{order.orderDetails.gatewayTransactionId || 'N/A'}</span></p>
                                                                         <p><span className="font-medium text-slate-600">Payment Date:</span> <span className="text-slate-800">{formatDate(order.orderDetails.updatedAt)}</span></p>
                                                                     </div>
@@ -472,9 +506,17 @@ export default function Reports() {
                                                                                     <tr key={item.ticketId} className="border-b border-slate-100 hover:bg-blue-50 transition">
                                                                                         <td className="py-2 font-medium text-blue-900">#{item.ticketId}</td>
                                                                                         <td className="text-slate-800">{item.ticketClass}</td>
-                                                                                        <td>
-                                                                                            <span className="text-green-800 bg-green-100 px-2 py-0.5 rounded-full text-xs font-medium">Active</span>
-                                                                                        </td>
+                                                                                        {
+                                                                                            item.status === "confirmed" ? (
+                                                                                                <td><span className="inline-flex rounded-full text-xs px-2 py-1 text-green-700 items-center bg-green-100">{item.status}</span></td>
+                                                                                            ) : item.status === "refunded" ? (
+                                                                                                <td><span className="inline-flex rounded-full text-xs px-2 py-1 text-red-700 items-center bg-red-100">{item.status}</span></td>
+                                                                                            ) : item.status === "used" ? (
+                                                                                                <td><span className="inline-flex rounded-full text-xs px-2 py-1 text-blue-700 items-center bg-blue-100">{item.status}</span></td>
+                                                                                            ) : (
+                                                                                                <td><span className="inline-flex rounded-full text-xs px-2 py-1 text-gray-700 items-center bg-gray-100">{item.status}</span></td>
+                                                                                            )
+                                                                                        }
                                                                                         <td className="text-right font-semibold text-blue-900">{formatCurrency(item.totalAmount)}</td>
                                                                                     </tr>
                                                                                 ))}
@@ -501,7 +543,6 @@ export default function Reports() {
                                                                                     <tr className="text-slate-500 border-b border-slate-100">
                                                                                         <th className="py-2">Name</th>
                                                                                         <th>Qty</th>
-                                                                                        <th>Ref ID</th>
                                                                                         <th className="text-right">Amount</th>
                                                                                     </tr>
                                                                                 </thead>
@@ -510,7 +551,6 @@ export default function Reports() {
                                                                                         <tr key={addon.addonRefId} className="border-b border-slate-100 hover:bg-pink-50 transition">
                                                                                             <td className="py-2 font-medium text-pink-900">{addon.addonName}</td>
                                                                                             <td>{addon.quantity}</td>
-                                                                                            <td className="font-mono text-slate-600">#{addon.addonRefId}</td>
                                                                                             <td className="text-right font-semibold text-pink-900">{formatCurrency(addon.totalAmount)}</td>
                                                                                         </tr>
                                                                                     ))}
@@ -576,6 +616,38 @@ export default function Reports() {
                 </div>
 
             </div>
+            {
+                showTicketsModal && viewTicketsOrder && (
+                    <ViewTicketModal isOpen={showTicketsModal} onClose={() => setShowTicketsModal(false)} order={viewTicketsOrder} />
+                )
+            }
+
+            {selectedOrder && (
+                <RefundModal
+                    isOpen={showRefundModal}
+                    onClose={() => setShowRefundModal(false)}
+                    order={selectedOrder}   // <-- pass the whole order
+                    currency={selectedEvent.currency_symbol}
+                    onRefund={async (reason, order) => {
+                        await refundOrder(order.id, order?.orderDetails?.totalAmount, reason);
+                    }}
+                    onRefundSuccess={refereshReport}
+                />)}
+
+            {orderToSendEmail && (
+                <ConfirmDialog
+                    open={confirmDialogOpen}
+                    onClose={() => setConfirmDialogOpen(false)}
+                    title="Send Ticket Email?"
+                    message={`Are you sure you want to send tickets to ${orderToSendEmail.purchaser.name} (${orderToSendEmail.purchaser.email})?`}
+                    onConfirm={async () => {
+                        if (orderToSendEmail) await sendEmail(orderToSendEmail);
+                        setConfirmDialogOpen(false);
+                        setOrderToSendEmail(null);
+                    }}
+                />
+            )}
+
         </div>
     );
 }

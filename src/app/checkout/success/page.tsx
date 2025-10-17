@@ -7,6 +7,7 @@ import { fetchSingleOrder } from "@/lib/order";
 
 interface Order {
     id: string;
+    orderId: string;
     totalAmount: number;
     purchaserName: string;
     purchaseEmail: string;
@@ -63,6 +64,7 @@ export default function PaymentSuccessPage() {
 
                 const transfromedOrder: Order = {
                     id: data.id,
+                    orderId: data.orderId,
                     totalAmount: parseFloat(data.totalAmount),
                     purchaserName: data.purchaserName,
                     purchaseEmail: data.purchaseEmail,
@@ -131,7 +133,7 @@ export default function PaymentSuccessPage() {
                     <div>
                         <h2 className="text-xl font-semibold text-gray-900">{order.event.name}</h2>
                         <p className="text-gray-600">{order.event.location}</p>
-                        <p className="text-gray-500 text-sm mt-1">Order ID: <span className="font-mono">{order.id}</span></p>
+                        <p className="text-gray-500 text-sm mt-1">Order ID: <span className="text-gray-800 font-semibold text-lg">#{order.orderId}</span></p>
                     </div>
                 </div>
             )}
