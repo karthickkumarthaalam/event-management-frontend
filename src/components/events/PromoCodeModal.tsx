@@ -72,7 +72,7 @@ export default function PromoCodeModal({
         setLoadingEvents(true);
         try {
             const res = await fetchEventList();
-            let eventsData = res.data || [];
+            let eventsData: { id: string; name: string; }[] = res.data || [];
 
             // Include current event if it's not in the list
             if (currentEventId && !eventsData.find(e => e.id === currentEventId) && promoCode?.event) {

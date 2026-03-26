@@ -1,14 +1,11 @@
-'use client';
-
 import React, { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { authservice } from "@/lib/auth";
 import { ArrowLeft } from "lucide-react";
 
 export default function ResetPassword() {
-    const router = useRouter();
-    const searchParams = useSearchParams();
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const emailFromQuery = searchParams.get("email") || "";
 
     const [formData, setFormData] = useState({
@@ -52,7 +49,7 @@ export default function ResetPassword() {
             });
 
             setSuccess("Password reset successfully! Redirecting to login...");
-            setTimeout(() => router.push("/login"), 1000);
+            setTimeout(() => navigate("/login"), 1000);
         } catch (err: any) {
             setError(err.response?.data?.message || "Failed to reset password");
         } finally {
@@ -63,7 +60,7 @@ export default function ResetPassword() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100  to-green-100 relative">
             <button
-                onClick={() => router.push('/')}
+                onClick={() => navigate('/')}
                 className="absolute top-6 left-6 flex items-center text-primary hover:text-indigo-600"
             >
                 <ArrowLeft className="w-5 h-5 mr-2" />
@@ -142,10 +139,10 @@ export default function ResetPassword() {
                     </button>
 
                     <div className="flex justify-between text-sm text-gray-600 mt-2">
-                        <Link href="/login" className="hover:text-indigo-600">
+                        <Link to="/login" className="hover:text-indigo-600">
                             Back to login
                         </Link>
-                        <Link href="/register" className="hover:text-indigo-600">
+                        <Link to="/register" className="hover:text-indigo-600">
                             Create account
                         </Link>
                     </div>

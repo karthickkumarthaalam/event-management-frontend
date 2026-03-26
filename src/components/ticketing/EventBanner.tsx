@@ -1,6 +1,7 @@
 "use client";
 
 import { Calendar, X } from "lucide-react";
+import { env } from "@/lib/env";
 import { useBanner } from "../../contexts/BannerContext";
 import { formatDateRange } from "../../lib/utils";
 
@@ -25,7 +26,7 @@ export const EventBanner = ({ selectedEvent }: { selectedEvent: any; }) => {
 
       {selectedEvent?.logo ? (
         <img
-          src={`${process.env.NEXT_PUBLIC_BASE_API}${selectedEvent?.logo}`}
+          src={`${env.baseApi}${selectedEvent?.logo}`}
           alt={selectedEvent?.name}
           className="w-12 h-12 md:w-24 md:h-24 rounded"
         />

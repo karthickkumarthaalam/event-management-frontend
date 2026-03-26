@@ -1,21 +1,17 @@
-'use client';
-
 import { useAuth } from "@/contexts/AuthContext";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { Ticket, Users, Wallet, BarChart, Calendar, CreditCard, PieChart, TrendingUp } from "lucide-react";
-import Image from "next/image";
 
 export default function Home() {
   const { isAuthenticated, isLoading } = useAuth();
-  const router = useRouter();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      router.push('/events');
+      navigate("/events", { replace: true });
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [isAuthenticated, isLoading, navigate]);
 
   if (isLoading || isAuthenticated) {
     return (
@@ -40,13 +36,13 @@ export default function Home() {
             </div>
             <div className="flex items-center space-x-4">
               <Link
-                href="/login"
+                to="/login"
                 className="px-4 py-2 text-gray-700 hover:text-blue-600 font-medium transition-colors"
               >
                 Sign In
               </Link>
               <Link
-                href="/register"
+                to="/register"
                 className="px-6 py-2 bg-gradient-to-br from-blue-500 to-blue-700 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
               >
                 Get Started
@@ -75,13 +71,13 @@ export default function Home() {
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link
-                  href="/register"
+                  to="/register"
                   className="px-8 py-3 bg-gradient-to-br from-blue-500 to-blue-700 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-sm text-center"
                 >
                   Start Free Trial
                 </Link>
                 <Link
-                  href="/login"
+                  to="/login"
                   className="px-8 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-white transition-colors text-center"
                 >
                   Sign In to Dashboard
@@ -281,13 +277,13 @@ export default function Home() {
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Link
-              href="/register"
+              to="/register"
               className="px-8 py-3 bg-gradient-to-br from-blue-500 to-blue-700 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
             >
               Start Your Free Trial
             </Link>
             <Link
-              href="/login"
+              to="/login"
               className="px-8 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
             >
               View Demo
@@ -315,27 +311,27 @@ export default function Home() {
           <div>
             <h3 className="font-semibold mb-4">Product</h3>
             <ul className="space-y-2 text-sm text-gray-400">
-              <li><Link href="/features" className="hover:text-white transition-colors">Features</Link></li>
-              <li><Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link></li>
-              <li><Link href="/security" className="hover:text-white transition-colors">Security</Link></li>
+              <li><Link to="/features" className="hover:text-white transition-colors">Features</Link></li>
+              <li><Link to="/pricing" className="hover:text-white transition-colors">Pricing</Link></li>
+              <li><Link to="/security" className="hover:text-white transition-colors">Security</Link></li>
             </ul>
           </div>
 
           <div>
             <h3 className="font-semibold mb-4">Company</h3>
             <ul className="space-y-2 text-sm text-gray-400">
-              <li><Link href="/about" className="hover:text-white transition-colors">About</Link></li>
-              <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
-              <li><Link href="/careers" className="hover:text-white transition-colors">Careers</Link></li>
+              <li><Link to="/about" className="hover:text-white transition-colors">About</Link></li>
+              <li><Link to="/contact" className="hover:text-white transition-colors">Contact</Link></li>
+              <li><Link to="/careers" className="hover:text-white transition-colors">Careers</Link></li>
             </ul>
           </div>
 
           <div>
             <h3 className="font-semibold mb-4">Support</h3>
             <ul className="space-y-2 text-sm text-gray-400">
-              <li><Link href="/help" className="hover:text-white transition-colors">Help Center</Link></li>
-              <li><Link href="/docs" className="hover:text-white transition-colors">Documentation</Link></li>
-              <li><Link href="/status" className="hover:text-white transition-colors">System Status</Link></li>
+              <li><Link to="/help" className="hover:text-white transition-colors">Help Center</Link></li>
+              <li><Link to="/docs" className="hover:text-white transition-colors">Documentation</Link></li>
+              <li><Link to="/status" className="hover:text-white transition-colors">System Status</Link></li>
             </ul>
           </div>
         </div>

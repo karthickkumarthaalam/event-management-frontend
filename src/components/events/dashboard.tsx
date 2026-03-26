@@ -1,20 +1,5 @@
-'use client';
-
 import { useEffect, useState, useMemo } from "react";
 import { fetchEvents } from "@/lib/events";
-import { Line, Pie, Bar } from "react-chartjs-2";
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    ArcElement,
-    BarElement,
-    Tooltip,
-    Legend,
-    Filler,
-} from "chart.js";
 import { Button } from "@/components/ui/button";
 import {
     Plus,
@@ -33,11 +18,24 @@ import {
     Activity
 } from "lucide-react";
 import EventModal from "./EventModal";
-import ViewEventModal from "./viewModal";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import ViewEventModal from "./viewModal";
+import { Line, Pie } from "react-chartjs-2";
+import {
+    ArcElement,
+    BarElement,
+    CategoryScale,
+    Chart as ChartJS,
+    Filler,
+    Legend,
+    LinearScale,
+    LineElement,
+    PointElement,
+    Tooltip,
+} from "chart.js";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcElement, BarElement, Tooltip, Legend, Filler);
 

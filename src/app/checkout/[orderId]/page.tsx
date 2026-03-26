@@ -1,11 +1,10 @@
-"use client";
-
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useNavigate, useParams } from "react-router-dom";
 import { Loader, Ticket, User, CreditCard, Sun, Moon } from "lucide-react";
 import { fetchPaymentModes, fetchSingleOrder, processPayment } from "@/lib/order";
 import { loadStripe } from "@stripe/stripe-js";
 import { toast } from "react-toastify";
+import { env } from "@/lib/env";
 
 interface Addon {
     id: string;
@@ -57,7 +56,7 @@ interface Order {
     id: string;
     items: OrderItem[];
     purchaser: Purchaser;
-    addonsDetails: Addon;
+    addonsDetails: Addon[];
     totalAmount: number;
     discountAmount: number;
     totalBase: number;
@@ -71,13 +70,12 @@ interface Order {
 
 
 export default function CheckoutPage() {
-    const params = useParams();
-    const { orderId } = params;
+    const { orderId } = useParams<{ orderId: string }>();
     const [order, setOrder] = useState<Order | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
-    const [paymentModes, setPaymentModes] = useState([]);
+    const [paymentModes, setPaymentModes] = useState<string[]>([]);
     const [selectedPaymentMode, setSelectedPaymentMode] = useState<string>("");
-    const router = useRouter();
+    const navigate = useNavigate();
 
     const [isDarkMode, setIsDarkMode] = useState(false);
 
@@ -99,15 +97,15 @@ export default function CheckoutPage() {
 
     const fetchOrder = async () => {
         try {
-            const data = await fetchSingleOrder(orderId, true);
+            const data = await fetchSingleOrder(orderId as string, true);
             // Transform backend order into frontend structure
 
             if (data.paymentStatus === "paid") {
-                router.push(`/checkout/success?orderId=${orderId}`);
+                navigate(`/checkout/success?orderId=${orderId}`, { replace: true });
                 return;
             }
 
-            const groupedItems = Object.values(
+            const groupedItems = Object.values<OrderItem>(
                 data.Items.reduce((acc: any, item: any) => {
                     if (!acc[item.ticketRefId]) {
                         acc[item.ticketRefId] = {
@@ -190,7 +188,7 @@ export default function CheckoutPage() {
             setOrder(transformedOrder);
         } catch (err: any) {
             console.error(err);
-            router.push(`/error?msg=${encodeURIComponent("Order Not Found")}`);
+            navigate(`/error?msg=${encodeURIComponent("Order Not Found")}`, { replace: true });
         }
     };
 
@@ -205,14 +203,16 @@ export default function CheckoutPage() {
     };
 
     useEffect(() => {
-        fetchOrder();
-    }, [orderId, router]);
+        if (orderId) {
+            fetchOrder();
+        }
+    }, [navigate, orderId]);
 
     useEffect(() => {
         if (order) fetchPaymentModesLocal();
     }, [order]);
 
-    const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+    const stripePromise = loadStripe(env.stripePublishableKey);
 
 
     const handleCheckout = async () => {
@@ -266,7 +266,7 @@ export default function CheckoutPage() {
             {order.event && (
                 <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-900 p-4 md:p-6 flex items-center gap-4">
                     {order.event.logo && (
-                        <img src={`${process.env.NEXT_PUBLIC_BASE_API}${order.event.logo}`} alt={order.event.name} className="w-16 h-16 object-cover rounded-lg" />
+                        <img src={`${env.baseApi}${order.event.logo}`} alt={order.event.name} className="w-16 h-16 object-cover rounded-lg" />
                     )}
                     <div>
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-200">{order.event.name}</h3>

@@ -1,12 +1,9 @@
-"use client";
-
-import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { XCircle } from "lucide-react";
 
 export default function ErrorPage() {
-    const searchParams = useSearchParams();
-    const router = useRouter();
+    const [searchParams] = useSearchParams();
     const [message, setMessage] = useState(
         "Something went wrong. Please try again or contact support."
     );

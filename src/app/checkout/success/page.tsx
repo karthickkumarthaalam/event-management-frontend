@@ -1,9 +1,8 @@
-"use client";
-
 import { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Loader, MailCheck } from "lucide-react";
 import { fetchSingleOrder } from "@/lib/order";
+import { env } from "@/lib/env";
 
 interface Order {
     id: string;
@@ -26,12 +25,12 @@ interface Order {
         addonName: string;
         quantity: number;
         totalAmount: number;
-    };
+    }[];
 }
 
 export default function PaymentSuccessPage() {
-    const searchParams = useSearchParams();
-    const router = useRouter();
+    const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
     const [order, setOrder] = useState<Order | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -39,7 +38,7 @@ export default function PaymentSuccessPage() {
 
     useEffect(() => {
         if (!orderId) {
-            router.push(`/error?msg=${encodeURIComponent("Order ID Not Found")}`);
+            navigate(`/error?msg=${encodeURIComponent("Order ID Not Found")}`, { replace: true });
             return;
         }
 
@@ -85,14 +84,14 @@ export default function PaymentSuccessPage() {
                 setOrder(transfromedOrder);
             } catch (err) {
                 console.error(err);
-                router.push(`/error?msg=${encodeURIComponent("Order Not Found")}`);
+                navigate(`/error?msg=${encodeURIComponent("Order Not Found")}`, { replace: true });
             } finally {
                 setLoading(false);
             }
         };
 
         fetchOrder();
-    }, [orderId, router]);
+    }, [navigate, orderId]);
 
     if (loading) {
         return <Loader className="animate-spin w-10 h-10 mx-auto mt-20" />;
@@ -125,7 +124,7 @@ export default function PaymentSuccessPage() {
                 <div className="bg-white rounded-xl shadow-md p-6 flex items-center gap-4 border border-gray-100">
                     {order.event.logo && (
                         <img
-                            src={`${process.env.NEXT_PUBLIC_BASE_API}${order.event.logo}`}
+                            src={`${env.baseApi}${order.event.logo}`}
                             alt={order.event.name}
                             className="w-20 h-20 object-cover rounded-lg"
                         />

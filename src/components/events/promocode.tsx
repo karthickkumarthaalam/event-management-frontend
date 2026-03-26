@@ -115,7 +115,7 @@ export default function PromoCode() {
                                     <span className="font-medium">
                                         {promo.discountType === "percentage"
                                             ? `${promo.discountValue}%`
-                                            : `${promo.event.currency_symbol} ${promo.discountValue}`}
+                                            : `${promo?.event?.currency_symbol || "CHF"} ${promo.discountValue}`}
                                     </span>
                                 </div>
 

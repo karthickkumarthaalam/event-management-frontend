@@ -1,8 +1,6 @@
-'use client';
-
 import NavbarLayout from "@/components/layouts/NavbarLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import { CalendarPlus, Users, Megaphone, Clock, MapPin, Edit, Eye, TrendingUp, DollarSign, CalendarDays } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
@@ -90,10 +88,10 @@ export default function Dashboard() {
                             <div className="flex justify-between items-start mb-4">
                                 <h3 className="text-xl font-bold text-gray-800">{event.name}</h3>
                                 <div className="flex gap-3">
-                                    <Link href={`/events/${event.id}`} className="hover:scale-110 transition">
+                                    <Link to={`/events/${event.id}`} className="hover:scale-110 transition">
                                         <Eye className="h-5 w-5 text-gray-600" />
                                     </Link>
-                                    <Link href={`/events/edit/${event.id}`} className="hover:scale-110 transition">
+                                    <Link to={`/events/edit/${event.id}`} className="hover:scale-110 transition">
                                         <Edit className="h-5 w-5 text-gray-600" />
                                     </Link>
                                 </div>

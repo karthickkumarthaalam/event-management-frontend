@@ -938,7 +938,7 @@ export default function Booking() {
                                                 </div>
                                                 {ticket.taxDetails.length > 0 && (
                                                     <div className="mt-3 pl-2 border-l-2 border-gray-300">
-                                                        {ticket.taxDetails.map((tax: addon) => (
+                                                        {ticket.taxDetails.map((tax: { id: string; name: string; rate: number; totalAmount: number }) => (
                                                             <div key={tax.id} className="flex justify-between text-sm text-gray-700 mb-1">
                                                                 <span>• {tax.name} </span>
                                                                 <span>{ticket.currency} {tax.totalAmount.toFixed(2)}</span>

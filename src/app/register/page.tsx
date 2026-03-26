@@ -1,13 +1,10 @@
-'use client';
-
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { Link, useNavigate } from 'react-router-dom';
 import { authservice } from '@/lib/auth';
 import { ArrowLeft } from 'lucide-react';
 
 export default function Register() {
-    const router = useRouter();
+    const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         email: '',
@@ -43,7 +40,7 @@ export default function Register() {
             await authservice.register(dataToSend);
             setSuccess('Registration successful! Redirecting...');
             setTimeout(() => {
-                router.push(`/verify-email?email=${encodeURIComponent(formData.email)}`);
+                navigate(`/verify-email?email=${encodeURIComponent(formData.email)}`);
             }, 2000);
         } catch (err: any) {
             setError(err.response?.data?.message || 'Registration failed');
@@ -55,7 +52,7 @@ export default function Register() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br  from-blue-50  to-indigo-50 relative">
             <button
-                onClick={() => router.push('/')}
+                onClick={() => navigate('/')}
                 className="absolute top-6 left-6 flex items-center text-base font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-blue-700 hover:text-blue-600"
             >
                 <ArrowLeft className="w-5 h-5 mr-2 " />
@@ -146,7 +143,7 @@ export default function Register() {
 
                     <div className="mt-4 text-center text-gray-600 text-sm">
                         Already have an account?{' '}
-                        <Link href="/login" className="text-indigo-600 hover:text-indigo-500 font-semibold">
+                        <Link to="/login" className="text-indigo-600 hover:text-indigo-500 font-semibold">
                             Sign In
                         </Link>
                     </div>

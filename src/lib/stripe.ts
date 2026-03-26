@@ -1,11 +1,8 @@
-"use client";
-
 import { loadStripe } from "@stripe/stripe-js";
+import { env } from "@/lib/env";
 
 // Initialize Stripe.js once
-export const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
-);
+export const stripePromise = loadStripe(env.stripePublishableKey);
 
 /**
  * Redirects user to Stripe checkout

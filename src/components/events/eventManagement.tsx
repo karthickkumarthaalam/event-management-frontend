@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { fetchEvents, deleteEvent } from "@/lib/events";
+import { env } from "@/lib/env";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import debounce from "lodash.debounce";
@@ -299,7 +300,7 @@ export default function EventManagement() {
                                 <div className="relative h-48 bg-gradient-to-br from-slate-100 to-slate-200">
                                     {event.logo ? (
                                         <img
-                                            src={`${process.env.NEXT_PUBLIC_BASE_API}${event.logo}`}
+                                            src={`${env.baseApi}${event.logo}`}
                                             alt={event.name}
                                             className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                                         />

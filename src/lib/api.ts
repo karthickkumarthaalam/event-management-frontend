@@ -1,10 +1,8 @@
 import axios from "axios";
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_BASE_API || "http://localhost:3000";
+import { env } from "@/lib/env";
 
 const api = axios.create({
-  baseURL: `${API_BASE_URL}`,
+  baseURL: env.baseApi,
   withCredentials: true,
 });
 

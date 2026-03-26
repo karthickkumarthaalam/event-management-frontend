@@ -2,9 +2,8 @@
 
 import { useTicketing } from "@/contexts/TicketingContextT";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchEvents } from "@/lib/events";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 
 
 
@@ -12,7 +11,7 @@ export default function EventSelectionModal() {
     const { selectedEvent, setSelectedEvent } = useTicketing();
     const [events, setEvents] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-
+    const navigate = useNavigate();
 
     useEffect(() => {
         async function getEvents() {
@@ -27,11 +26,26 @@ export default function EventSelectionModal() {
         getEvents();
     }, []);
 
+    const handleBackdropClick = () => {
+        if (window.history.length > 1) {
+            navigate(-1);
+            return;
+        }
+
+        navigate("/events", { replace: true });
+    };
+
     if (selectedEvent) return null;
 
     return (
-        <div className="fixed inset-0 z-[51] flex items-center justify-center bg-black/20 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-2xl mx-4 border border-gray-100">
+        <div
+            className="fixed inset-0 z-[51] flex items-center justify-center bg-black/20 backdrop-blur-sm"
+            onClick={handleBackdropClick}
+        >
+            <div
+                className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-2xl mx-4 border border-gray-100"
+                onClick={(event) => event.stopPropagation()}
+            >
                 <div className="flex items-center justify-center mb-5">
                     <h1 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-gray-500 to-gray-900 text-transparent bg-clip-text mb-4">
                         Select an Event to Manage Tickets

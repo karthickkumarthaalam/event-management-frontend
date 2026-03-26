@@ -1,13 +1,11 @@
-'use client';
-
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { authservice } from "@/lib/auth";
 import { ArrowLeft } from "lucide-react";
 
 export default function VerifyEmailPage() {
-    const router = useRouter();
-    const searchParams = useSearchParams();
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const email = searchParams.get("email") || "";
 
     const [otp, setOtp] = useState("");
@@ -26,7 +24,7 @@ export default function VerifyEmailPage() {
             await authservice.verifyEmail({ email, otp });
             setSuccess("Email verified successfully! Redirecting to login...");
             setTimeout(() => {
-                router.push("/");
+                navigate("/");
             }, 2000);
         } catch (err: any) {
             setError(err.response?.data?.message || "Invalid OTP");
@@ -53,7 +51,7 @@ export default function VerifyEmailPage() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100  to-green-100 relative">
             <button
-                onClick={() => router.push('/')}
+                onClick={() => navigate('/')}
                 className="absolute top-6 left-6 flex items-center text-primary hover:text-indigo-600"
             >
                 <ArrowLeft className="w-5 h-5 mr-2" />

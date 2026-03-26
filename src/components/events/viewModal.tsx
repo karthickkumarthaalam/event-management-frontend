@@ -3,16 +3,17 @@ import { X, Calendar, MapPin, Clock, Users, Star, Building2, Building, Banknote 
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import { env } from "@/lib/env";
 
 // Fix default marker icon in Leaflet
-delete L.Icon.Default.prototype._getIconUrl;
+delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl;
 L.Icon.Default.mergeOptions({
     iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
     iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
     shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
 
-function statusColor(status) {
+function statusColor(status: string) {
     const colors = {
         planning: "bg-slate-100 text-slate-700 border-slate-200",
         confirmed: "bg-blue-100 text-blue-700 border-blue-200",
@@ -20,10 +21,10 @@ function statusColor(status) {
         completed: "bg-green-100 text-green-700 border-green-200",
         cancelled: "bg-red-100 text-red-700 border-red-200",
     };
-    return colors[status] || colors.planning;
+    return (colors as Record<string, string>)[status] || colors.planning;
 }
 
-function Badge({ children, className }) {
+function Badge({ children, className }: { children: React.ReactNode; className: string }) {
     return (
         <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${className}`}>
             {children}
@@ -31,11 +32,11 @@ function Badge({ children, className }) {
     );
 }
 
-function Card({ children, className = "" }) {
+function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
     return <div className={`bg-white rounded-xl shadow-sm border border-gray-100 ${className}`}>{children}</div>;
 }
 
-function Button({ children, onClick, variant = "primary", size = "md", className = "" }) {
+function Button({ children, onClick, variant = "primary", size = "md", className = "" }: { children: React.ReactNode; onClick?: () => void; variant?: string; size?: string; className?: string }) {
     const baseClasses =
         "inline-flex items-center justify-center font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2";
     const variants = {
@@ -50,13 +51,13 @@ function Button({ children, onClick, variant = "primary", size = "md", className
     };
 
     return (
-        <button onClick={onClick} className={`${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`}>
+        <button onClick={onClick} className={`${baseClasses} ${(variants as Record<string, string>)[variant]} ${(sizes as Record<string, string>)[size]} ${className}`}>
             {children}
         </button>
     );
 }
 
-function SimpleMap({ location, coords }) {
+function SimpleMap({ location, coords }: { location: string; coords: [number, number] | null }) {
     if (!coords) return <p className="text-gray-500 text-sm">Loading map...</p>;
 
     return (
@@ -74,14 +75,14 @@ function SimpleMap({ location, coords }) {
     );
 }
 
-export default function ViewEventModal({ open = true, onClose, event }) {
+export default function ViewEventModal({ open = true, onClose, event }: { open?: boolean; onClose: () => void; event: Record<string, string | undefined | null> | null }) {
     const [imageLoaded, setImageLoaded] = useState(false);
-    const [coords, setCoords] = useState(null);
+    const [coords, setCoords] = useState<[number, number] | null>(null);
 
     useEffect(() => {
         if (event?.location) {
             fetch(
-                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(event.location)}`
+                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(event.location as string)}`
             )
                 .then((res) => res.json())
                 .then((data) => {
@@ -97,7 +98,9 @@ export default function ViewEventModal({ open = true, onClose, event }) {
 
     if (!event || !open) return null;
 
-    const formatDate = (dateString) =>
+    const e = event as Record<string, string>;
+
+    const formatDate = (dateString: string) =>
         new Date(dateString).toLocaleDateString("en-US", {
             weekday: "long",
             year: "numeric",
@@ -106,10 +109,10 @@ export default function ViewEventModal({ open = true, onClose, event }) {
         });
 
     const getDateRange = () => {
-        if (event.end_date && event.start_date !== event.end_date) {
-            return `${formatDate(event.start_date)} - ${formatDate(event.end_date)}`;
+        if (e.end_date && e.start_date !== e.end_date) {
+            return `${formatDate(e.start_date)} - ${formatDate(e.end_date)}`;
         }
-        return formatDate(event.start_date);
+        return formatDate(e.start_date);
     };
 
     return (
@@ -126,11 +129,11 @@ export default function ViewEventModal({ open = true, onClose, event }) {
                     <div className="relative flex items-start justify-between">
                         <div className="flex-1">
                             <div className="flex items-center gap-3 mb-3">
-                                <Badge className={`${statusColor(event.status)} bg-white/20 border-white/30 text-white`}>
-                                    {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+                                <Badge className={`${statusColor(e.status)} bg-white/20 border-white/30 text-white`}>
+                                    {e.status.charAt(0).toUpperCase() + e.status.slice(1)}
                                 </Badge>
                             </div>
-                            <h1 className="text-2xl md:text-3xl font-bold mb-2 leading-tight">{event.name}</h1>
+                            <h1 className="text-2xl md:text-3xl font-bold mb-2 leading-tight">{e.name}</h1>
                             <div className="flex flex-wrap items-center gap-4 text-white/90">
                                 <div className="flex items-center gap-2">
                                     <Calendar className="h-4 w-4" />
@@ -155,11 +158,11 @@ export default function ViewEventModal({ open = true, onClose, event }) {
                         <div className="space-y-6">
                             <Card className="overflow-hidden">
                                 <div className="flex items-center justify-center">
-                                    {event.logo ? (
+                                    {e.logo ? (
                                         <div className="relative">
                                             <img
-                                                src={`${process.env.NEXT_PUBLIC_BASE_API}${event.logo}`} // <- update with backend path
-                                                alt={event.name}
+                                                src={`${env.baseApi}${e.logo}`}
+                                                alt={e.name}
                                                 className={`w-48 h-48 object-contain rounded-lg transition-opacity duration-300 ${imageLoaded ? "opacity-100" : "opacity-0"
                                                     }`}
                                                 onLoad={() => setImageLoaded(true)}
@@ -184,41 +187,41 @@ export default function ViewEventModal({ open = true, onClose, event }) {
                                     Other Details
                                 </h3>
                                 <div className="flex flex-col gap-2">
-                                    {event.country && (
+                                    {e.country && (
                                         <div className="flex items-center gap-2">
                                             <MapPin className="h-4 w-4 text-slate-600" />
-                                            <p className="text-slate-500">{event.country}</p>
+                                            <p className="text-slate-500">{e.country}</p>
                                         </div>
                                     )}
-                                    {event.location && (
+                                    {e.location && (
                                         <div className="flex items-center gap-2">
                                             <Building2 className="h-4 w-4 text-slate-600" />
-                                            <p className="text-slate-500">{event.location}</p>
+                                            <p className="text-slate-500">{e.location}</p>
                                         </div>
                                     )}
-                                    {event.address && (
+                                    {e.address && (
                                         <div className="flex items-center gap-2">
                                             <Building className="h-4 w-4 text-slate-600" />
-                                            <p className="text-slate-500">{event.address}</p>
+                                            <p className="text-slate-500">{e.address}</p>
                                         </div>
                                     )}
-                                    {event.currency && (
+                                    {e.currency && (
                                         <div className="flex items-center gap-2">
                                             <Banknote className="h-4 w-4 text-slate-600" />
-                                            <p className="text-slate-500">{event.currency} - ( {event.currency_symbol} )</p>
+                                            <p className="text-slate-500">{e.currency} - ( {e.currency_symbol} )</p>
                                         </div>
                                     )}
                                 </div>
                             </Card>
                         </div>
                         <div className="lg:col-span-2 space-y-6">
-                            {event.description && (
+                            {e.description && (
                                 <Card className="p-6">
                                     <h3 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
                                         <div className="h-2 w-2 bg-indigo-500 rounded-full" />
                                         About This Event
                                     </h3>
-                                    <p className="text-gray-600 leading-relaxed">{event.description}</p>
+                                    <p className="text-gray-600 leading-relaxed">{e.description}</p>
                                 </Card>
                             )}
 
@@ -227,7 +230,7 @@ export default function ViewEventModal({ open = true, onClose, event }) {
                                     <div className="h-2 w-2 bg-indigo-500 rounded-full" />
                                     Location
                                 </h3>
-                                <SimpleMap location={event.location} coords={coords} />
+                                <SimpleMap location={e.location} coords={coords} />
                             </Card>
                         </div>
                     </div>

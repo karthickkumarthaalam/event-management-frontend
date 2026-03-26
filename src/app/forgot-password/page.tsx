@@ -1,13 +1,10 @@
-'use client';
-
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { Link, useNavigate } from "react-router-dom";
 import { authservice } from "@/lib/auth";
 import { ArrowLeft } from "lucide-react";
 
 export default function ForgotPassword() {
-    const router = useRouter();
+    const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
@@ -23,7 +20,7 @@ export default function ForgotPassword() {
             await authservice.forgotPassword({ email });
             setSuccess("Password reset OTP sent to your email.");
             setTimeout(() => {
-                router.push(`/reset-password?email=${encodeURIComponent(email)}`);
+                navigate(`/reset-password?email=${encodeURIComponent(email)}`);
             }, 1500);
         } catch (err: any) {
             setError(err.response?.data?.message || "Failed to send password reset email");
@@ -35,7 +32,7 @@ export default function ForgotPassword() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br  from-blue-50  to-indigo-50 relative">
             <button
-                onClick={() => router.push('/')}
+                onClick={() => navigate('/')}
                 className="absolute top-6 left-6 flex items-center text-base font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-blue-700 hover:text-blue-600"
             >
                 <ArrowLeft className="w-5 h-5 mr-2 " />
@@ -81,10 +78,10 @@ export default function ForgotPassword() {
                     </button>
 
                     <div className="flex justify-between text-sm text-gray-600 mt-2">
-                        <Link href="/login" className="hover:text-indigo-600">
+                        <Link to="/login" className="hover:text-indigo-600">
                             Back to login
                         </Link>
-                        <Link href="/register" className="hover:text-indigo-600">
+                        <Link to="/register" className="hover:text-indigo-600">
                             Create account
                         </Link>
                     </div>

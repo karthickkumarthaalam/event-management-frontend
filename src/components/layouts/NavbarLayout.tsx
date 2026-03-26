@@ -1,9 +1,6 @@
-'use client';
-
 import { useAuth } from "@/contexts/AuthContext";
 import { Calendar, LogOut, Menu, X } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, useLocation } from "react-router-dom";
 import { ReactNode, useState } from "react";
 
 interface NavbarLayoutProps {
@@ -12,14 +9,14 @@ interface NavbarLayoutProps {
 
 export default function NavbarLayout({ children }: NavbarLayoutProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const pathname = usePathname();
+    const { pathname } = useLocation();
     const { logout } = useAuth();
 
     const navlinks = [
-        { href: "/events", label: "Events" },
-        { href: "/ticketing", label: "Ticketing" },
-        { href: "/crew", label: "Crew" },
-        { href: "/budget", label: "Budget" },
+        { to: "/events", label: "Events" },
+        { to: "/ticketing", label: "Ticketing" },
+        { to: "/crew", label: "Crew" },
+        { to: "/budget", label: "Budget" },
     ];
 
     return (
@@ -30,7 +27,7 @@ export default function NavbarLayout({ children }: NavbarLayoutProps) {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
 
                     {/* Logo */}
-                    <Link href="/events" className="flex items-center space-x-2 group">
+                    <Link to="/events" className="flex items-center space-x-2 group">
                         <Calendar className="h-6 w-6 text-white group-hover:text-blue-500 transition-colors" />
                         <span className="text-xl font-heading font-bold text-white group-hover:text-blue-500 transition-colors">
                             Thaalam
@@ -42,8 +39,8 @@ export default function NavbarLayout({ children }: NavbarLayoutProps) {
                         {navlinks.map(link => (
                             <Link
                                 key={link.label}
-                                href={link.href}
-                                className={`relative transition duration-200 ${pathname === link.href
+                                to={link.to}
+                                className={`relative transition duration-200 ${pathname === link.to
                                     ? "text-blue-500 font-semibold"
                                     : "text-gray-200 hover:text-blue-400"
                                     }`}
@@ -85,7 +82,7 @@ export default function NavbarLayout({ children }: NavbarLayoutProps) {
                             {navlinks.map(link => (
                                 <Link
                                     key={link.label}
-                                    href={link.href}
+                                    to={link.to}
                                     className={`px-3 py-2 rounded-lg transition ${pathname === link.href
                                         ? "bg-blue-800 text-blue-400 font-medium"
                                         : "text-gray-300 hover:bg-gray-800 hover:text-blue-400"
@@ -114,7 +111,7 @@ export default function NavbarLayout({ children }: NavbarLayoutProps) {
                 {children}
             </main>
 
-            <style jsx global>{`
+            <style>{`
         @keyframes slideInLeft {
               from {
                 transform: translateX(-100%);

@@ -1,9 +1,8 @@
-"use client";
-
 import { fetchSingleOrder, generateToken } from "@/lib/order";
 import { downloadAllTicketsAsZip } from "@/lib/pdf";
 import { formatDate } from "@/lib/utils";
-import { useParams } from "next/navigation";
+import { env } from "@/lib/env";
+import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import {
@@ -17,6 +16,7 @@ import {
 import QRCode from "qrcode";
 
 interface TicketType {
+    id: string;
     ticketId: string;
     ticketClass: string;
     quantity: number;
@@ -54,14 +54,14 @@ interface Order {
 }
 
 export default function TicketListing() {
-    const { orderId } = useParams();
+    const { orderId } = useParams<{ orderId: string }>();
     const [order, setOrder] = useState<Order | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
     const fetchOrder = async () => {
         setLoading(true);
         try {
-            const data: Order = await fetchSingleOrder(orderId, true);
+            const data: Order = await fetchSingleOrder(orderId as string, true);
 
             const ticketsWithQR = await Promise.all(
                 data.Items.map(async (ticket) => {
@@ -151,7 +151,7 @@ export default function TicketListing() {
                                 <div className="flex items-center space-x-3 md:space-x-4">
                                     {order.event.logo && (
                                         <img
-                                            src={`${process.env.NEXT_PUBLIC_BASE_API}${order.event.logo}`}
+                                            src={`${env.baseApi}${order.event.logo}`}
                                             alt="Event Logo"
                                             className="w-12 h-12 md:w-14 md:h-14 rounded-lg shadow-md object-cover"
                                         />

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createEvent, updateEvent } from "@/lib/events";
+import { env } from "@/lib/env";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -57,7 +58,7 @@ export default function EventModal({ open, onClose, event, onSaved }: EventModal
                 currency_symbol: event.currency_symbol || "",
                 status: event.status || "planing",
             });
-            setPreview(`${process.env.NEXT_PUBLIC_BASE_API}${event.logo}` || null);
+            setPreview(event.logo ? `${env.baseApi}${event.logo}` : null);
             setRemoveLogo(false);
         } else {
             setForm({
